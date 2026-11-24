@@ -173,4 +173,88 @@ describe('App', () => {
       expect(card.getAttribute('aria-live')).toBe('polite')
     })
   })
+
+  describe('field errors', () => {
+    const errorOf = (name: string) => {
+      const field = input(name)
+      const id = field.getAttribute('aria-describedby')
+      return id === null ? null : document.getElementById(id)?.textContent
+    }
+
+    it('shows no error before leaving the field (CA10)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.type(input('Nivel actual (%)'), '105')
+      expect(errorOf('Nivel actual (%)')).toBe(null)
+      expect(input('Nivel actual (%)').getAttribute('aria-invalid')).toBe(null)
+    })
+
+    it('shows the error when leaving the field and hides it once fixed (CA11, CA12, CA32)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.click(input('Nivel actual (%)'))
+      await user.tab()
+      expect(errorOf('Nivel actual (%)')).toBe('Introduce el nivel actual.')
+      expect(input('Nivel actual (%)').getAttribute('aria-invalid')).toBe(
+        'true',
+      )
+
+      await user.type(input('Nivel actual (%)'), '105')
+      expect(errorOf('Nivel actual (%)')).toBe(
+        'Escribe un porcentaje entero entre 0 y 100.',
+      )
+
+      await user.type(input('Nivel actual (%)'), '{Backspace}')
+      expect(errorOf('Nivel actual (%)')).toBe(null)
+      expect(input('Nivel actual (%)').getAttribute('aria-invalid')).toBe(null)
+    })
+
+    it('marks the level as left when a quick button is used', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.click(screen.getByRole('button', { name: '25 %' }))
+      await user.clear(input('Nivel actual (%)'))
+      expect(errorOf('Nivel actual (%)')).toBe('Introduce el nivel actual.')
+    })
+
+    it('shows the price errors', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.type(input('Precio por litro (€/l)'), '1,5799')
+      await user.tab()
+      expect(errorOf('Precio por litro (€/l)')).toBe(
+        'Escribe un precio entre 0,001 y 5 €/l, con tres decimales como máximo.',
+      )
+    })
+
+    it('checks the target again when the level changes (CA13)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.type(input('Nivel actual (%)'), '80')
+      await user.click(screen.getByRole('button', { name: 'Hasta X %' }))
+      await user.type(input('% objetivo'), '75')
+      await user.tab()
+      expect(errorOf('% objetivo')).toBe(
+        'El objetivo debe ser mayor que el nivel actual.',
+      )
+
+      await user.clear(input('Nivel actual (%)'))
+      await user.type(input('Nivel actual (%)'), '50')
+      expect(errorOf('% objetivo')).toBe(null)
+
+      // With an invalid level only the target's own rule applies.
+      await user.clear(input('Nivel actual (%)'))
+      await user.type(input('Nivel actual (%)'), '105')
+      expect(errorOf('% objetivo')).toBe(null)
+    })
+
+    it('only shows the errors of the visible fields (CA14)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.click(screen.getByRole('button', { name: 'Tengo X €' }))
+      await user.click(input('Euros que tienes'))
+      await user.tab()
+      expect(screen.getByText('Introduce cuántos euros tienes.')).toBeTruthy()
+
+      await user.click(screen.getByRole('button', { name: 'A tope' }))
+      expect(screen.queryByText('Introduce cuántos euros tienes.')).toBeNull()
+
+      await user.click(screen.getByRole('button', { name: 'Tengo X €' }))
+      expect(screen.getByText('Introduce cuántos euros tienes.')).toBeTruthy()
+    })
+  })
 })

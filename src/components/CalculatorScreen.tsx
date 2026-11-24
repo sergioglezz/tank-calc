@@ -68,20 +68,27 @@ type CalculatorProps = Omit<CalculatorScreenProps, 'car' | 'focusOnMount'> & {
 
 function Calculator({
   car,
-  form: { mode, fields },
+  form: { mode, fields, touched },
   onChooseCar,
   onFieldChange,
   onTouch,
   onModeChange,
 }: CalculatorProps) {
-  // Recalculated on every render: any change updates the result (CA6).
+  // Recalculated on every render: any change updates the result and, once a
+  // field has been left, its error (CA6, CA12, CA13).
   const evaluation = evaluateCalculator(car.capacity, mode, fields)
   const result = evaluation.result
+
+  // Only rendered fields show errors, so hidden modes hide theirs (CA14).
+  const errorOf = (name: Field): string | null => {
+    const validated = evaluation[name]
+    return touched[name] && !validated.ok ? validated.message : null
+  }
 
   const field = (name: Field) => ({
     id: name,
     value: fields[name],
-    error: null,
+    error: errorOf(name),
     onChange: (value: string) => onFieldChange(name, value),
     onBlur: () => onTouch(name),
   })

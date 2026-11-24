@@ -45,7 +45,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   - nivel 100 → «Tu depósito ya está lleno».
 
   (verificación: `npm test` y revisión en `npm run dev` | cubre: CA3–CA9, CA15, CA16, parte de CA34)
-- [ ] T9: Mostrar los errores con el indicador de «tocado»: al salir del campo, error debajo, marca roja, `aria-invalid` y `aria-describedby`. Solo se muestran los campos visibles.
+- [x] T9: Mostrar los errores con el indicador de «tocado»: al salir del campo, error debajo, marca roja, `aria-invalid` y `aria-describedby`. Solo se muestran los campos visibles.
 
   Tests:
   - sin error antes de salir del campo;
