@@ -7,7 +7,7 @@ import {
 import { describeResult } from './resultText'
 
 // Intl and the formatters use a non-breaking space between number and unit.
-const nbsp = (text: string): string => text.replace(/(\d) /g, '$1 ')
+const nbsp = (text: string): string => text.replace(/(\d) /g, '$1\u00a0')
 
 const describe50 = (mode: Mode, overrides: Partial<CalculatorFields> = {}) =>
   describeResult(
