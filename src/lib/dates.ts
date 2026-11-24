@@ -35,3 +35,9 @@ export function isValidIsoDate(text: string): boolean {
 /** Calendar days from `from` to `to` (negative if `to` is earlier). */
 export const daysBetween = (from: IsoDate, to: IsoDate): number =>
   Math.round((toUtcTime(to) - toUtcTime(from)) / MS_PER_DAY)
+
+/** The day `days` calendar days after `date` (before, if negative). */
+export function shiftDays(date: IsoDate, days: number): IsoDate {
+  const shifted = new Date(toUtcTime(date) + days * MS_PER_DAY)
+  return `${pad(shifted.getUTCFullYear(), 4)}-${pad(shifted.getUTCMonth() + 1, 2)}-${pad(shifted.getUTCDate(), 2)}`
+}

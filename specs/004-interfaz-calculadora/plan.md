@@ -195,7 +195,7 @@ Repaso de los criterios de la spec contra el código, los tests (577 en verde; l
 - **«+ Añadir mi coche»** se añadió en T13, junto con su hoja, en vez de en T11, para no dejar un botón sin función.
 - **`src/test/memoryStore.ts`:** almacenamiento falso compartido por los tests de componentes, con una variante que falla al guardar.
 - **jsdom no implementa `<dialog>` modal:** `src/test/setup.ts` añade la versión mínima prevista; el foco y Escape se comprobaron en el navegador.
-- **Formato:** `npx prettier --check src` avisa de 12 archivos antiguos de `src/lib` por tener finales de línea CRLF en la copia de trabajo de Windows (`core.autocrlf`). En el repositorio están bien y no se han tocado.
+- **Formato:** `npx prettier --check src` avisa de 12 archivos antiguos de `src/lib` por tener finales de línea CRLF en la copia de trabajo de Windows (`core.autocrlf`). En el repositorio están bien y no se han tocado. Se resolvió después con un `.gitattributes` (ver el plan de la 005, sección 9).
 - La spec no ha cambiado.
 
 ### Pendiente

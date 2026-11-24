@@ -22,7 +22,7 @@ Principios no negociables de tank-calc. Si una spec, plan o tarea contradice est
 - **Lógica separada de la UI:** cálculos, validación y acceso a `localStorage` viven en funciones puras/módulos en `src/lib/`, sin React.
 - **Convenciones:** código en inglés, textos de la interfaz en español. Componentes en `PascalCase`, funciones y variables en `camelCase`. Nada de `any`. Sin código muerto ni comentarios que repitan el código.
 - **Errores:** las entradas no válidas se muestran al usuario con un mensaje claro junto al campo, nunca como excepción ni `NaN`. Si `localStorage` falla o tiene datos corruptos, la app sigue funcionando con valores por defecto.
-- **Dinero:** importes en euros redondeados a 2 decimales para mostrar; "sin pasarte" = importe truncado a euros enteros.
+- **Cifras:** los euros, los litros y los porcentajes que se muestran son enteros y se truncan para no pasarse nunca. El único dato con decimales es el precio por litro, con tres como máximo (como en el surtidor). Los cálculos se hacen con enteros para que el truncado sea exacto (D1).
 
 ## 3. Simplicidad
 - Ninguna dependencia nueva sin justificarla en el `plan.md` de la feature.

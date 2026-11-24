@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import App from './App'
@@ -13,9 +19,12 @@ const storeWithCar = (name = 'Prueba', capacity = 50): MemoryStore =>
     [STORAGE_KEYS.selectedCar]: JSON.stringify({ source: 'own', name }),
   })
 
+/** Every component test runs on the same day. */
+const TODAY = '2026-11-24'
+
 function renderApp(storage: KeyValueStore | null = new MemoryStore()) {
   const user = userEvent.setup()
-  render(<App storage={storage} />)
+  render(<App storage={storage} getToday={() => TODAY} />)
   return { user }
 }
 
@@ -311,7 +320,7 @@ describe('App', () => {
 
       await user.type(input('Nivel actual (%)'), '25')
       await user.type(input('Precio por litro (€/l)'), '1,579')
-      expect(screen.getByRole('status').textContent).toBe(SAVE_FAILED)
+      expect(screen.getByText(SAVE_FAILED)).toBeTruthy()
       expect(resultText()).toContain('Pide 59 €')
     })
   })
@@ -613,6 +622,523 @@ describe('App', () => {
       expect(
         screen.getByRole('button', { name: 'Añadir mi coche' }),
       ).toBeTruthy()
+    })
+  })
+
+  describe('bottom navigation', () => {
+    const nav = () => screen.getByRole('navigation', { name: 'Principal' })
+    const navButton = (name: string) =>
+      within(nav()).getByRole('button', { name })
+
+    it('goes to the history and back, moving the focus (CA1, CA2)', async () => {
+      const { user } = renderApp(storeWithCar())
+      expect(navButton('Calculadora').getAttribute('aria-current')).toBe('page')
+      expect(navButton('Historial').getAttribute('aria-current')).toBe(null)
+
+      await user.click(navButton('Historial'))
+      expect(document.activeElement).toBe(heading('Tu historial'))
+      expect(navButton('Historial').getAttribute('aria-current')).toBe('page')
+
+      await user.click(navButton('Calculadora'))
+      expect(document.activeElement).toBe(heading('Calculadora'))
+    })
+
+    it('does nothing when the active section is pressed (CA2)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.click(navButton('Calculadora'))
+      expect(document.activeElement).toBe(navButton('Calculadora'))
+    })
+
+    it('marks «Calculadora» while choosing a car and goes back with it (CA1, CA2)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.click(screen.getByRole('button', { name: 'Cambiar coche' }))
+      heading('Elige tu coche')
+      expect(navButton('Calculadora').getAttribute('aria-current')).toBe('page')
+
+      await user.click(navButton('Calculadora'))
+      expect(document.activeElement).toBe(heading('Calculadora'))
+    })
+
+    it('keeps the calculator data after visiting the history (CA3)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.type(input('Nivel actual (%)'), '105')
+      await user.tab()
+      await user.click(navButton('Historial'))
+      await user.click(navButton('Calculadora'))
+      expect(input('Nivel actual (%)').value).toBe('105')
+      expect(
+        screen.getByText('Escribe un porcentaje entero entre 0 y 100.'),
+      ).toBeTruthy()
+    })
+  })
+
+  describe('history screen', () => {
+    // Saved as `addRefuel` would: liters = euros / price, truncated.
+    const REFUELS = [
+      {
+        id: 1,
+        date: '2026-10-30',
+        euros: 40,
+        price: 1.6,
+        liters: 25,
+        car: null,
+      },
+      {
+        id: 2,
+        date: '2026-11-20',
+        euros: 30,
+        price: 1.579,
+        liters: 18,
+        car: 'Seat Ibiza',
+      },
+      {
+        id: 3,
+        date: '2026-11-24',
+        euros: 20,
+        price: 1.5,
+        liters: 13,
+        car: 'Seat Ibiza',
+      },
+      {
+        id: 4,
+        date: '2026-11-24',
+        euros: 25,
+        price: 1.5,
+        liters: 16,
+        car: null,
+      },
+    ]
+
+    const storeWithRefuels = (refuels: unknown = REFUELS) => {
+      const store = storeWithCar()
+      store.setItem(STORAGE_KEYS.refuels, JSON.stringify(refuels))
+      return store
+    }
+
+    const openHistory = async (store: MemoryStore) => {
+      const result = renderApp(store)
+      await result.user.click(
+        within(screen.getByRole('navigation', { name: 'Principal' })).getByRole(
+          'button',
+          { name: 'Historial' },
+        ),
+      )
+      return result
+    }
+
+    const region = (name: string) =>
+      screen.getByRole('region', { name }).textContent.replace(/\s+/g, ' ')
+
+    it('shows the empty history and goes to the calculator (CA13)', async () => {
+      const { user } = await openHistory(storeWithCar())
+      expect(
+        screen.getByRole('heading', {
+          name: 'Aún no has guardado ningún repostaje',
+        }),
+      ).toBeTruthy()
+      expect(screen.getByText('Todos tus repostajes, a mano')).toBeTruthy()
+      await user.click(
+        screen.getByRole('button', { name: 'Ir a la calculadora' }),
+      )
+      expect(document.activeElement).toBe(heading('Calculadora'))
+    })
+
+    it('shows the last refuel (CA14, CA17)', async () => {
+      await openHistory(storeWithRefuels())
+      expect(region('La última vez gastaste')).toBe(
+        'La última vez gastaste25 €24/11/202616 l · 1,5 €/l',
+      )
+    })
+
+    it('shows the car of the last refuel when it has one (CA14)', async () => {
+      await openHistory(storeWithRefuels(REFUELS.slice(0, 3)))
+      expect(region('La última vez gastaste')).toContain(
+        '24/11/2026 · Seat Ibiza',
+      )
+    })
+
+    it('shows the month total and the euros of each day (CA15)', async () => {
+      await openHistory(storeWithRefuels())
+      const month = region('Este mes')
+      expect(month).toContain('Este mes75 €')
+      expect(month).toContain('24/11/202645 €')
+      expect(month).toContain('20/11/202630 €')
+      expect(month).toContain('30/10/202640 €')
+    })
+
+    it('lists every refuel, newest first, with its count (CA16, CA17)', async () => {
+      await openHistory(storeWithRefuels())
+      expect(region('Repostajes')).toContain('4 repostajes')
+      const rows = within(screen.getByRole('region', { name: 'Repostajes' }))
+        .getAllByRole('listitem')
+        .map((row) => row.textContent.replace(/\s+/g, ' '))
+      expect(rows).toEqual([
+        '24/11/202616 l · 1,5 €/l25 €Borrar',
+        '24/11/202613 l · 1,5 €/l · Seat Ibiza20 €Borrar',
+        '20/11/202618 l · 1,579 €/l · Seat Ibiza30 €Borrar',
+        '30/10/202625 l · 1,6 €/l40 €Borrar',
+      ])
+    })
+
+    it('says «1 repostaje» with a single one (CA16)', async () => {
+      await openHistory(storeWithRefuels(REFUELS.slice(0, 1)))
+      expect(region('Repostajes')).toContain('1 repostaje')
+      expect(region('Repostajes')).not.toContain('1 repostajes')
+    })
+
+    it('keeps the valid refuels of damaged data (CA21)', async () => {
+      await openHistory(
+        storeWithRefuels([REFUELS[1], { id: 9, date: 'ayer' }, 'basura']),
+      )
+      expect(region('Repostajes')).toContain('1 repostaje')
+      expect(region('La última vez gastaste')).toContain('30 €')
+    })
+
+    const confirmIn = () =>
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Borrar',
+      })
+
+    it('asks before deleting a refuel; cancelling keeps it (CA18)', async () => {
+      const { user } = await openHistory(storeWithRefuels())
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Borrar el repostaje del 20/11/2026 de 30\u00a0€',
+        }),
+      )
+      const dialog = screen.getByRole('dialog', {
+        name: '¿Borrar el repostaje del 20/11/2026 de 30\u00a0€?',
+      })
+      expect(document.activeElement).toBe(
+        within(dialog).getByRole('button', { name: 'Cancelar' }),
+      )
+      await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
+      expect(screen.queryByRole('dialog')).toBeNull()
+      expect(region('Repostajes')).toContain('4 repostajes')
+    })
+
+    it('deletes the refuel and updates everything (CA19, CA22)', async () => {
+      const store = storeWithRefuels()
+      const { user } = await openHistory(store)
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Borrar el repostaje del 24/11/2026 de 25\u00a0€',
+        }),
+      )
+      await user.click(confirmIn())
+
+      expect(document.activeElement).toBe(heading('Tu historial'))
+      expect(region('Repostajes')).toContain('3 repostajes')
+      expect(region('La última vez gastaste')).toContain('20 €')
+      expect(region('Este mes')).toContain('Este mes50 €')
+      expect(region('Este mes')).toContain('24/11/202620 €')
+      const saved = JSON.parse(store.getItem(STORAGE_KEYS.refuels) ?? '[]')
+      expect(saved.map((refuel: { id: number }) => refuel.id)).toEqual([
+        3, 2, 1,
+      ])
+    })
+
+    it('deletes only the chosen one of two identical refuels (CA19)', async () => {
+      const twin = { ...REFUELS[1], id: 5 }
+      const { user } = await openHistory(storeWithRefuels([REFUELS[1], twin]))
+      const buttons = screen.getAllByRole('button', {
+        name: 'Borrar el repostaje del 20/11/2026 de 30\u00a0€',
+      })
+      expect(buttons).toHaveLength(2)
+      await user.click(buttons[1])
+      await user.click(confirmIn())
+      expect(region('Repostajes')).toContain('1 repostaje')
+    })
+
+    it('shows the empty history after deleting the last refuel (CA20)', async () => {
+      const { user } = await openHistory(storeWithRefuels(REFUELS.slice(0, 1)))
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Borrar el repostaje del 30/10/2026 de 40\u00a0€',
+        }),
+      )
+      await user.click(confirmIn())
+      expect(
+        screen.getByRole('heading', {
+          name: 'Aún no has guardado ningún repostaje',
+        }),
+      ).toBeTruthy()
+      expect(document.activeElement).toBe(heading('Tu historial'))
+    })
+
+    it('warns when the history cannot be saved (CA22)', async () => {
+      const store = new FailingStore({
+        [STORAGE_KEYS.refuels]: JSON.stringify(REFUELS.slice(0, 1)),
+      })
+      const { user } = await openHistory(store)
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Borrar el repostaje del 30/10/2026 de 40\u00a0€',
+        }),
+      )
+      await user.click(confirmIn())
+      expect(screen.getByRole('status').textContent).toContain(
+        'No se han podido guardar tus datos',
+      )
+      expect(
+        screen.getByRole('heading', {
+          name: 'Aún no has guardado ningún repostaje',
+        }),
+      ).toBeTruthy()
+    })
+
+    it('treats unreadable data as an empty history (CA21)', async () => {
+      const store = storeWithCar()
+      store.setItem(STORAGE_KEYS.refuels, '{no es json')
+      await openHistory(store)
+      expect(
+        screen.getByRole('heading', {
+          name: 'Aún no has guardado ningún repostaje',
+        }),
+      ).toBeTruthy()
+    })
+  })
+
+  describe('save a refuel', () => {
+    const saveButton = () =>
+      screen.getByRole('button', {
+        name: 'Guardar repostaje',
+      }) as HTMLButtonElement
+
+    const fillCalculator = async (
+      user: ReturnType<typeof userEvent.setup>,
+      level = '25',
+      price = '1,579',
+    ) => {
+      await user.type(input('Nivel actual (%)'), level)
+      await user.type(input('Precio por litro (€/l)'), price)
+    }
+
+    const openSheet = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(saveButton())
+      return screen.getByRole('dialog', { name: 'Guardar repostaje' })
+    }
+
+    const field = (dialog: HTMLElement, name: string) =>
+      within(dialog).getByLabelText(name) as HTMLInputElement
+
+    it('enables the button only when the card shows figures (CA5)', async () => {
+      const { user } = renderApp(storeWithCar())
+      expect(saveButton().disabled).toBe(true)
+      await fillCalculator(user)
+      expect(saveButton().disabled).toBe(false)
+
+      await user.clear(input('Nivel actual (%)'))
+      await user.type(input('Nivel actual (%)'), '100')
+      expect(saveButton().disabled).toBe(true)
+
+      await user.clear(input('Nivel actual (%)'))
+      await user.type(input('Nivel actual (%)'), '99')
+      await user.clear(input('Precio por litro (€/l)'))
+      await user.type(input('Precio por litro (€/l)'), '1,5')
+      expect(resultText()).toContain('Falta menos de 1 €')
+      expect(saveButton().disabled).toBe(true)
+    })
+
+    it('has no button on the welcome (CA5)', () => {
+      renderApp()
+      expect(
+        screen.queryByRole('button', { name: 'Guardar repostaje' }),
+      ).toBeNull()
+    })
+
+    it('fills in the euros to ask for, the price, today and the car (CA6)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await fillCalculator(user)
+      await user.click(screen.getByRole('button', { name: 'Tengo X €' }))
+      await user.type(input('Euros que tienes'), '80')
+
+      const dialog = await openSheet(user)
+      expect(field(dialog, 'Euros pagados (€)').value).toBe('59')
+      expect(field(dialog, 'Euros pagados (€)').inputMode).toBe('numeric')
+      expect(field(dialog, 'Precio por litro (€/l)').value).toBe('1,579')
+      expect(field(dialog, 'Fecha').value).toBe(TODAY)
+      expect(field(dialog, 'Fecha').min).toBe('2025-11-24')
+      expect(field(dialog, 'Fecha').max).toBe(TODAY)
+      expect(
+        within(dialog).getByText('Se guardará con tu coche: Prueba.'),
+      ).toBeTruthy()
+    })
+
+    it('saves the refuel, shows the notice and lists it (CA9)', async () => {
+      const store = storeWithCar()
+      const { user } = renderApp(store)
+      await fillCalculator(user)
+      const dialog = await openSheet(user)
+      await user.click(within(dialog).getByRole('button', { name: 'Guardar' }))
+
+      expect(screen.queryByRole('dialog')).toBeNull()
+      expect(screen.getByText('Repostaje guardado')).toBeTruthy()
+      heading('Calculadora')
+      expect(JSON.parse(store.getItem(STORAGE_KEYS.refuels) ?? '[]')).toEqual([
+        {
+          id: 1,
+          date: TODAY,
+          euros: 59,
+          price: 1.579,
+          liters: 37,
+          car: 'Prueba',
+        },
+      ])
+
+      await user.click(
+        within(screen.getByRole('navigation', { name: 'Principal' })).getByRole(
+          'button',
+          { name: 'Historial' },
+        ),
+      )
+      expect(
+        screen.getByRole('region', { name: 'Repostajes' }).textContent,
+      ).toContain('24/11/2026')
+    })
+
+    it('saves the edited values, including another day (CA7)', async () => {
+      const store = storeWithCar()
+      const { user } = renderApp(store)
+      await fillCalculator(user)
+      const dialog = await openSheet(user)
+      await user.clear(field(dialog, 'Euros pagados (€)'))
+      await user.type(field(dialog, 'Euros pagados (€)'), '4a0')
+      expect(field(dialog, 'Euros pagados (€)').value).toBe('40')
+      await user.clear(field(dialog, 'Precio por litro (€/l)'))
+      await user.type(field(dialog, 'Precio por litro (€/l)'), '1.6')
+      fireEvent.change(field(dialog, 'Fecha'), {
+        target: { value: '2026-11-20' },
+      })
+      await user.click(within(dialog).getByRole('button', { name: 'Guardar' }))
+
+      expect(JSON.parse(store.getItem(STORAGE_KEYS.refuels) ?? '[]')).toEqual([
+        {
+          id: 1,
+          date: '2026-11-20',
+          euros: 40,
+          price: 1.6,
+          liters: 25,
+          car: 'Prueba',
+        },
+      ])
+    })
+
+    it('shows errors when leaving a field and all of them when saving (CA8)', async () => {
+      const store = storeWithCar()
+      const { user } = renderApp(store)
+      await fillCalculator(user)
+      const dialog = await openSheet(user)
+
+      await user.clear(field(dialog, 'Euros pagados (€)'))
+      await user.tab()
+      expect(
+        within(dialog).getByText('Introduce el importe pagado.'),
+      ).toBeTruthy()
+
+      await user.type(field(dialog, 'Euros pagados (€)'), '1001')
+      expect(
+        within(dialog).getByText('Escribe un importe entero entre 1 y 1000 €.'),
+      ).toBeTruthy()
+
+      await user.clear(field(dialog, 'Precio por litro (€/l)'))
+      fireEvent.change(field(dialog, 'Fecha'), {
+        target: { value: '2026-11-25' },
+      })
+      await user.click(within(dialog).getByRole('button', { name: 'Guardar' }))
+
+      expect(
+        within(dialog).getByText('Introduce el precio por litro.'),
+      ).toBeTruthy()
+      expect(
+        within(dialog).getByText('La fecha no puede ser posterior a hoy.'),
+      ).toBeTruthy()
+      expect(field(dialog, 'Fecha').getAttribute('aria-invalid')).toBe('true')
+      expect(screen.getByRole('dialog', { name: 'Guardar repostaje' })).toBe(
+        dialog,
+      )
+      expect(store.getItem(STORAGE_KEYS.refuels)).toBe(null)
+    })
+
+    it('cancelling saves nothing (CA11)', async () => {
+      const store = storeWithCar()
+      const { user } = renderApp(store)
+      await fillCalculator(user)
+      const dialog = await openSheet(user)
+      await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
+      expect(screen.queryByRole('dialog')).toBeNull()
+      expect(screen.queryByText('Repostaje guardado')).toBeNull()
+      expect(store.getItem(STORAGE_KEYS.refuels)).toBe(null)
+    })
+
+    it('hides the notice when data changes, on navigating or reopening (CA10)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await fillCalculator(user)
+      const save = async () => {
+        const dialog = await openSheet(user)
+        await user.click(
+          within(dialog).getByRole('button', { name: 'Guardar' }),
+        )
+        expect(screen.getByText('Repostaje guardado')).toBeTruthy()
+      }
+
+      await save()
+      await user.type(input('Nivel actual (%)'), '{Backspace}')
+      expect(screen.queryByText('Repostaje guardado')).toBeNull()
+
+      await user.type(input('Nivel actual (%)'), '5')
+      await save()
+      await user.click(screen.getByRole('button', { name: 'Hasta X %' }))
+      expect(screen.queryByText('Repostaje guardado')).toBeNull()
+
+      await user.click(screen.getByRole('button', { name: 'A tope' }))
+      await save()
+      await openSheet(user)
+      expect(screen.queryByText('Repostaje guardado')).toBeNull()
+      await user.keyboard('{Escape}')
+    })
+
+    it('keeps the calculator and the remembered price (CA12)', async () => {
+      const store = storeWithCar()
+      const { user } = renderApp(store)
+      await fillCalculator(user)
+      const dialog = await openSheet(user)
+      await user.clear(field(dialog, 'Precio por litro (€/l)'))
+      await user.type(field(dialog, 'Precio por litro (€/l)'), '1,7')
+      await user.click(within(dialog).getByRole('button', { name: 'Guardar' }))
+
+      expect(input('Precio por litro (€/l)').value).toBe('1,579')
+      expect(input('Nivel actual (%)').value).toBe('25')
+      expect(store.getItem(STORAGE_KEYS.price)).toBe('1,579')
+    })
+
+    it('warns when the refuel cannot be saved and keeps it (CA22)', async () => {
+      const store = new FailingStore({
+        [STORAGE_KEYS.ownCars]: JSON.stringify([
+          { name: 'Prueba', capacity: 50 },
+        ]),
+        [STORAGE_KEYS.selectedCar]: JSON.stringify({
+          source: 'own',
+          name: 'Prueba',
+        }),
+      })
+      const { user } = renderApp(store)
+      await fillCalculator(user)
+      const dialog = await openSheet(user)
+      await user.click(within(dialog).getByRole('button', { name: 'Guardar' }))
+      expect(
+        screen.getByText(/No se han podido guardar tus datos/),
+      ).toBeTruthy()
+
+      await user.click(
+        within(screen.getByRole('navigation', { name: 'Principal' })).getByRole(
+          'button',
+          { name: 'Historial' },
+        ),
+      )
+      expect(
+        screen.getByRole('region', { name: 'Repostajes' }).textContent,
+      ).toContain('1 repostaje')
     })
   })
 })

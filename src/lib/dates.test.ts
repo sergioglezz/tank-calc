@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { daysBetween, isValidIsoDate, todayIso } from './dates'
+import { daysBetween, isValidIsoDate, shiftDays, todayIso } from './dates'
 
 describe('todayIso', () => {
   it('writes the local day as AAAA-MM-DD', () => {
@@ -58,5 +58,24 @@ describe('daysBetween', () => {
   it('is not affected by daylight saving changes', () => {
     expect(daysBetween('2026-03-28', '2026-03-30')).toBe(2)
     expect(daysBetween('2026-10-24', '2026-10-26')).toBe(2)
+  })
+})
+
+describe('shiftDays', () => {
+  it.each([
+    ['2026-11-24', 0, '2026-11-24'],
+    ['2026-11-24', 1, '2026-11-25'],
+    ['2026-11-30', 1, '2026-12-01'],
+    ['2026-12-31', 1, '2027-01-01'],
+    ['2026-03-01', -1, '2026-02-28'],
+    ['2028-03-01', -1, '2028-02-29'],
+    ['2026-11-24', -365, '2025-11-24'],
+    ['2028-11-24', -365, '2027-11-25'],
+  ])('%s %i days → %s', (date, days, expected) => {
+    expect(shiftDays(date, days)).toBe(expected)
+  })
+
+  it('goes back exactly the days daysBetween counts', () => {
+    expect(daysBetween(shiftDays('2026-03-29', -365), '2026-03-29')).toBe(365)
   })
 })
