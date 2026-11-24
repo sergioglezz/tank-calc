@@ -18,7 +18,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   - los datos de la calculadora se conservan.
 
   (verificación: `npm test` y revisión en `npm run dev` | cubre: CA1–CA4)
-- [ ] T3: Crear `HistoryScreen.tsx` y cargar el historial en `App` con `loadRefuels`:
+- [x] T3: Crear `HistoryScreen.tsx` y cargar el historial en `App` con `loadRefuels`:
   - historial vacío con «Ir a la calculadora»;
   - «La última vez gastaste»;
   - «Este mes» con «Gasto por día»;

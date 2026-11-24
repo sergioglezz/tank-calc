@@ -16,24 +16,29 @@ import {
   type CarState,
 } from './lib/ownCars'
 import {
+  loadRefuels,
   loadSavedData,
   saveCarState,
   savePrice,
   type KeyValueStore,
 } from './lib/storage'
+import { todayIso, type IsoDate } from './lib/dates'
 import { validatePrice } from './lib/validation'
 
 export interface AppProps {
   /** Where data is remembered; null when the browser does not allow it (D4). */
   storage: KeyValueStore | null
+  /** The device's day, read when needed; tests pass a fixed one (D6). */
+  getToday?: () => IsoDate
 }
 
 /** No router: the screen is part of the state (D7). */
 type Screen = 'calculator' | 'chooseCar' | 'history'
 
-function App({ storage }: AppProps) {
+function App({ storage, getToday = todayIso }: AppProps) {
   const [saved] = useState(() => loadSavedData(storage))
   const [cars, setCars] = useState<CarState>(saved.cars)
+  const [refuels] = useState(() => loadRefuels(storage))
   const [form, setForm] = useState<CalculatorFormState>(() => ({
     mode: 'fullTank',
     fields: { level: '', price: saved.price ?? '', target: '', money: '' },
@@ -121,7 +126,12 @@ function App({ storage }: AppProps) {
             }
           />
         ) : screen === 'history' ? (
-          <HistoryScreen focusOnMount={hasNavigated} />
+          <HistoryScreen
+            history={refuels}
+            today={getToday()}
+            focusOnMount={hasNavigated}
+            onGoToCalculator={() => goTo('calculator')}
+          />
         ) : (
           <ChooseCarScreen
             cars={cars}

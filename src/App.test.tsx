@@ -13,9 +13,12 @@ const storeWithCar = (name = 'Prueba', capacity = 50): MemoryStore =>
     [STORAGE_KEYS.selectedCar]: JSON.stringify({ source: 'own', name }),
   })
 
+/** Every component test runs on the same day. */
+const TODAY = '2026-11-24'
+
 function renderApp(storage: KeyValueStore | null = new MemoryStore()) {
   const user = userEvent.setup()
-  render(<App storage={storage} />)
+  render(<App storage={storage} getToday={() => TODAY} />)
   return { user }
 }
 
@@ -659,6 +662,140 @@ describe('App', () => {
       expect(input('Nivel actual (%)').value).toBe('105')
       expect(
         screen.getByText('Escribe un porcentaje entero entre 0 y 100.'),
+      ).toBeTruthy()
+    })
+  })
+
+  describe('history screen', () => {
+    // Saved as `addRefuel` would: liters = euros / price, truncated.
+    const REFUELS = [
+      {
+        id: 1,
+        date: '2026-10-30',
+        euros: 40,
+        price: 1.6,
+        liters: 25,
+        car: null,
+      },
+      {
+        id: 2,
+        date: '2026-11-20',
+        euros: 30,
+        price: 1.579,
+        liters: 18,
+        car: 'Seat Ibiza',
+      },
+      {
+        id: 3,
+        date: '2026-11-24',
+        euros: 20,
+        price: 1.5,
+        liters: 13,
+        car: 'Seat Ibiza',
+      },
+      {
+        id: 4,
+        date: '2026-11-24',
+        euros: 25,
+        price: 1.5,
+        liters: 16,
+        car: null,
+      },
+    ]
+
+    const storeWithRefuels = (refuels: unknown = REFUELS) => {
+      const store = storeWithCar()
+      store.setItem(STORAGE_KEYS.refuels, JSON.stringify(refuels))
+      return store
+    }
+
+    const openHistory = async (store: MemoryStore) => {
+      const result = renderApp(store)
+      await result.user.click(
+        within(screen.getByRole('navigation', { name: 'Principal' })).getByRole(
+          'button',
+          { name: 'Historial' },
+        ),
+      )
+      return result
+    }
+
+    const region = (name: string) =>
+      screen.getByRole('region', { name }).textContent.replace(/\s+/g, ' ')
+
+    it('shows the empty history and goes to the calculator (CA13)', async () => {
+      const { user } = await openHistory(storeWithCar())
+      expect(
+        screen.getByRole('heading', {
+          name: 'Aún no has guardado ningún repostaje',
+        }),
+      ).toBeTruthy()
+      expect(screen.getByText('Todos tus repostajes, a mano')).toBeTruthy()
+      await user.click(
+        screen.getByRole('button', { name: 'Ir a la calculadora' }),
+      )
+      expect(document.activeElement).toBe(heading('Calculadora'))
+    })
+
+    it('shows the last refuel (CA14, CA17)', async () => {
+      await openHistory(storeWithRefuels())
+      expect(region('La última vez gastaste')).toBe(
+        'La última vez gastaste25 €24/11/202616 l · 1,5 €/l',
+      )
+    })
+
+    it('shows the car of the last refuel when it has one (CA14)', async () => {
+      await openHistory(storeWithRefuels(REFUELS.slice(0, 3)))
+      expect(region('La última vez gastaste')).toContain(
+        '24/11/2026 · Seat Ibiza',
+      )
+    })
+
+    it('shows the month total and the euros of each day (CA15)', async () => {
+      await openHistory(storeWithRefuels())
+      const month = region('Este mes')
+      expect(month).toContain('Este mes75 €')
+      expect(month).toContain('24/11/202645 €')
+      expect(month).toContain('20/11/202630 €')
+      expect(month).toContain('30/10/202640 €')
+    })
+
+    it('lists every refuel, newest first, with its count (CA16, CA17)', async () => {
+      await openHistory(storeWithRefuels())
+      expect(region('Repostajes')).toContain('4 repostajes')
+      const rows = within(screen.getByRole('region', { name: 'Repostajes' }))
+        .getAllByRole('listitem')
+        .map((row) => row.textContent.replace(/\s+/g, ' '))
+      expect(rows).toEqual([
+        '24/11/202616 l · 1,5 €/l25 €',
+        '24/11/202613 l · 1,5 €/l · Seat Ibiza20 €',
+        '20/11/202618 l · 1,579 €/l · Seat Ibiza30 €',
+        '30/10/202625 l · 1,6 €/l40 €',
+      ])
+    })
+
+    it('says «1 repostaje» with a single one (CA16)', async () => {
+      await openHistory(storeWithRefuels(REFUELS.slice(0, 1)))
+      expect(region('Repostajes')).toContain('1 repostaje')
+      expect(region('Repostajes')).not.toContain('1 repostajes')
+    })
+
+    it('keeps the valid refuels of damaged data (CA21)', async () => {
+      await openHistory(
+        storeWithRefuels([REFUELS[1], { id: 9, date: 'ayer' }, 'basura']),
+      )
+      expect(region('Repostajes')).toContain('1 repostaje')
+      expect(region('La última vez gastaste')).toContain('30 €')
+    })
+
+    it('treats unreadable data as an empty history (CA21)', async () => {
+      const store = storeWithCar()
+      store.setItem(STORAGE_KEYS.refuels, '{no es json')
+      await openHistory(store)
+      expect(
+        screen.getByRole('heading', {
+          name: 'Aún no has guardado ningún repostaje',
+        }),
       ).toBeTruthy()
     })
   })
