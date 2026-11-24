@@ -5,8 +5,18 @@ import {
   type Field,
 } from './components/CalculatorScreen'
 import { ChooseCarScreen } from './components/ChooseCarScreen'
-import { resolveSelected, type CarState } from './lib/ownCars'
-import { loadSavedData, savePrice, type KeyValueStore } from './lib/storage'
+import {
+  resolveSelected,
+  selectCar,
+  type CarRef,
+  type CarState,
+} from './lib/ownCars'
+import {
+  loadSavedData,
+  saveCarState,
+  savePrice,
+  type KeyValueStore,
+} from './lib/storage'
 import { validatePrice } from './lib/validation'
 
 export interface AppProps {
@@ -19,7 +29,7 @@ type Screen = 'calculator' | 'chooseCar'
 
 function App({ storage }: AppProps) {
   const [saved] = useState(() => loadSavedData(storage))
-  const [cars] = useState<CarState>(saved.cars)
+  const [cars, setCars] = useState<CarState>(saved.cars)
   const [form, setForm] = useState<CalculatorFormState>(() => ({
     mode: 'fullTank',
     fields: { level: '', price: saved.price ?? '', target: '', money: '' },
@@ -34,6 +44,17 @@ function App({ storage }: AppProps) {
   const goTo = (next: Screen) => {
     setScreen(next)
     setHasNavigated(true)
+  }
+
+  /** Every change to the cars is remembered at once (CA17 of spec 002). */
+  const updateCars = (next: CarState) => {
+    setCars(next)
+    setSaveFailed(!saveCarState(storage, next))
+  }
+
+  const chooseCar = (ref: CarRef) => {
+    updateCars(selectCar(cars, ref))
+    goTo('calculator')
   }
 
   const changeField = (field: Field, value: string) => {
@@ -85,7 +106,11 @@ function App({ storage }: AppProps) {
             }
           />
         ) : (
-          <ChooseCarScreen onBack={() => goTo('calculator')} />
+          <ChooseCarScreen
+            cars={cars}
+            onBack={() => goTo('calculator')}
+            onSelect={chooseCar}
+          />
         )}
       </main>
     </div>

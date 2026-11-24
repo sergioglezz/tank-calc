@@ -315,4 +315,90 @@ describe('App', () => {
       expect(resultText()).toContain('Pide 59 €')
     })
   })
+
+  describe('choose a car', () => {
+    const openChooseCar = async (store = storeWithCar()) => {
+      const result = renderApp(store)
+      await result.user.click(
+        screen.getByRole('button', { name: 'Cambiar coche' }),
+      )
+      return result
+    }
+
+    const carButton = (name: RegExp) => screen.getByRole('button', { name })
+
+    it('lists own cars first and then the catalog (CA18, CA19)', async () => {
+      await openChooseCar()
+      const own = screen.getByRole('region', { name: 'Mis coches' })
+      expect(own.textContent).toContain('Prueba')
+      expect(own.textContent).toContain('Seleccionado')
+      expect(
+        screen.getByRole('region', { name: 'Explorar modelos' }).textContent,
+      ).toContain('Toyota Corolla')
+      expect(screen.getByText(/Compruébala en el manual/)).toBeTruthy()
+    })
+
+    it('marks own cars that are not selected as added by the user (CA19)', async () => {
+      const store = storeWithCar()
+      store.setItem(
+        STORAGE_KEYS.selectedCar,
+        JSON.stringify({ source: 'catalog', key: 'toyota|corolla|' }),
+      )
+      await openChooseCar(store)
+      expect(carButton(/^Prueba/).textContent).toContain('Añadido por ti')
+      expect(carButton(/^Toyota Corolla/).textContent).toContain('Seleccionado')
+    })
+
+    it('filters while typing, by every word in any order (CA21)', async () => {
+      const { user } = await openChooseCar()
+      await user.type(
+        screen.getByRole('searchbox', { name: 'Busca marca o modelo' }),
+        'corolla toy',
+      )
+      expect(carButton(/^Toyota Corolla/)).toBeTruthy()
+      expect(screen.queryByRole('button', { name: /^Seat Ibiza/ })).toBeNull()
+      expect(screen.queryByRole('region', { name: 'Mis coches' })).toBeNull()
+    })
+
+    it('says when no car matches (CA22)', async () => {
+      const { user } = await openChooseCar()
+      await user.type(
+        screen.getByRole('searchbox', { name: 'Busca marca o modelo' }),
+        '  zzz ',
+      )
+      expect(
+        screen.getByText('No hay coches que coincidan con «zzz».'),
+      ).toBeTruthy()
+      expect(
+        screen.queryByRole('region', { name: 'Explorar modelos' }),
+      ).toBeNull()
+    })
+
+    it('selects a car, goes back and calculates with it (CA20)', async () => {
+      const store = storeWithCar()
+      const { user } = await openChooseCar(store)
+      await user.click(carButton(/^Toyota Corolla/))
+
+      expect(document.activeElement).toBe(heading('Calculadora'))
+      expect(
+        screen.getByRole('region', { name: 'Tu coche' }).textContent,
+      ).toContain('Toyota Corolla · 43')
+      await user.type(input('Nivel actual (%)'), '0')
+      await user.type(input('Precio por litro (€/l)'), '1')
+      expect(resultText()).toContain('Pide 43 €')
+      expect(store.getItem(STORAGE_KEYS.selectedCar)).toBe(
+        JSON.stringify({ source: 'catalog', key: 'toyota|corolla|' }),
+      )
+    })
+
+    it('chooses the first car from the welcome', async () => {
+      const { user } = renderApp()
+      await user.click(screen.getByRole('button', { name: 'Elegir coche' }))
+      expect(screen.queryByRole('region', { name: 'Mis coches' })).toBeNull()
+      await user.click(carButton(/^Seat Ibiza/))
+      expect(
+        screen.getByRole('region', { name: 'Tu coche' }).textContent,
+      ).toContain('Seat Ibiza')
+    })
+  })
 })

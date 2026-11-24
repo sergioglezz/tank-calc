@@ -66,7 +66,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   (verificación: `npm test` | cubre: CA4, CA17, CA29)
 
 ## Coches
-- [ ] T11: Completar `ChooseCarScreen.tsx`:
+- [x] T11: Completar `ChooseCarScreen.tsx`:
   - buscador que filtra mientras se escribe;
   - secciones «Mis coches» y «Explorar modelos» (se ocultan si están vacías);
   - filas con nombre, capacidad, «Seleccionado» ✓ y «Añadido por ti»;
