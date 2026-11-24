@@ -60,11 +60,11 @@ Con `Intl.NumberFormat('es-ES', …)` (CA13):
 ## 4. Setup y CI
 - **Proyecto:** plantilla oficial `npm create vite@latest` con `react-ts` en la raíz del repo y TypeScript `strict`. Se quitan los archivos de ejemplo; `index.html` lleva `lang="es"` y el título «tank-calc».
 - **Tests:** Vitest con el entorno `node` por defecto, porque aún no hay componentes.
-- **Lint y formato:** el ESLint (flat config) de la plantilla, más Prettier y `eslint-config-prettier`.
+- **Lint y formato:** oxlint, con la configuración `.oxlintrc.json` que trae la plantilla, y Prettier para el formato (ver D2). oxlint no trae reglas de estilo activadas, así que no choca con Prettier y no hace falta ninguna integración entre los dos.
 - **Scripts de npm:** `dev`, `build`, `preview`, `lint`, `test` (`vitest run`), `test:watch` y `format`.
 - **CI** (`.github/workflows/ci.yml`): en cada push y PR, con Node 24 LTS, ejecuta `npm ci`, `lint`, `test` y `build`.
 
-**Dependencias nuevas:** react, react-dom, vite, @vitejs/plugin-react, typescript, eslint (y los plugins de la plantilla), vitest, prettier y eslint-config-prettier. Todas están en la constitución salvo `eslint-config-prettier`, que es la integración estándar para que ESLint y Prettier no choquen.
+**Dependencias nuevas:** react, react-dom, vite, @vitejs/plugin-react, typescript y los tipos (`@types/*`) que trae la plantilla, oxlint, vitest y prettier. Todas están en la constitución.
 
 **Se dejan para la primera spec de interfaz:** Tailwind CSS, Testing Library, jsdom y el despliegue en Vercel. Instalarlos ahora sería añadir dependencias sin uso. El test de componente que la constitución pide por funcionalidad también irá ahí.
 
@@ -75,10 +75,11 @@ Con `Intl.NumberFormat('es-ES', …)` (CA13):
 - **`format.test.ts`:** los tres formatos de CA13.
 
 ## 6. Archivos
-**Nuevos:** `package.json`, `package-lock.json`, `index.html`, `vite.config.ts`, `tsconfig*.json`, `eslint.config.js`, `.prettierrc`, `.gitignore`, `src/main.tsx`, `src/App.tsx` (marcador), `src/lib/{parseDecimal,validation,fillUp,format}.ts` y sus `.test.ts`, `.github/workflows/ci.yml`, `docs/decisiones.md`.
+**Nuevos:** `package.json`, `package-lock.json`, `index.html`, `vite.config.ts`, `tsconfig*.json`, `.oxlintrc.json`, `.prettierrc`, `.gitignore`, `src/main.tsx`, `src/App.tsx` (marcador), `src/lib/{parseDecimal,validation,fillUp,format}.ts` y sus `.test.ts`, `.github/workflows/ci.yml`, `docs/decisiones.md`.
 **Modificados:** `README.md` (qué hay hecho y comandos) y `AGENTS.md` (tabla de comandos).
 **Eliminados:** los archivos de ejemplo de la plantilla (`App.css`, `index.css`, logos y assets).
 
 ## 7. Decisiones técnicas
 Registradas en [docs/decisiones.md](../../docs/decisiones.md):
 - D1: Cálculo del dinero en enteros para un truncado exacto.
+- D2: oxlint en lugar de ESLint.
