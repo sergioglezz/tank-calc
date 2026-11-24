@@ -14,4 +14,4 @@ Basadas en el [plan](plan.md). Se hacen en orden y de una en una. Al cerrar cada
 - [x] T7: Implementar `format.ts` (`formatEuros`, `formatWholeEuros`, `formatLiters`) con tests. (verificación: `npm test` | cubre: CA13)
 
 ## Cierre
-- [ ] T8: Actualizar `README.md`: qué es tank-calc, qué hay hecho (el cálculo, todavía sin interfaz) y cómo instalar, ejecutar los tests y hacer el build en local. (verificación: revisión del README | cubre: —)
+- [x] T8: Actualizar `README.md`: qué es tank-calc, qué hay hecho (el cálculo, todavía sin interfaz) y cómo instalar, ejecutar los tests y hacer el build en local. (verificación: revisión del README | cubre: —)
