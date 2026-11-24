@@ -19,7 +19,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   - objetivo no mayor que el nivel.
 
   (verificación: `npm test` | cubre: CA6, CA8, CA13)
-- [ ] T6: Implementar `resultText.ts` (`describeResult`) con un test por cada fila de la tabla de CA7, con los textos exactos. (verificación: `npm test` | cubre: CA7)
+- [x] T6: Implementar `resultText.ts` (`describeResult`) con un test por cada fila de la tabla de CA7, con los textos exactos. (verificación: `npm test` | cubre: CA7)
 
 ## Calculadora
 - [ ] T7: Sustituir el marcador de `App.tsx`:
