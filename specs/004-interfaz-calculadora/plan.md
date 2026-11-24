@@ -149,3 +149,55 @@ Se añadirán a [docs/decisiones.md](../../docs/decisiones.md):
 - **`<dialog>` en jsdom:** si no está implementado, se añade la versión mínima de la sección 5. El comportamiento real del foco y de Escape se comprueba a mano en el navegador.
 - **Lighthouse por debajo de 90:** casi siempre se debe al contraste o a etiquetas. Se revisa en la tarea de cierre antes de dar CA35 por cumplido.
 - **Vercel depende de la cuenta del autor:** si no se conecta en T1, las tareas siguientes pueden avanzar y CA36–CA38 se comprueban al final.
+
+## 9. Cierre de la feature
+Repaso de los criterios de la spec contra el código, los tests (577 en verde; lint y build en verde) y las comprobaciones manuales hechas en el navegador a 360 px. Lo que depende de la cuenta de Vercel del autor y de móviles reales queda **pendiente** y se marca con ⏳.
+
+| CA | Se cumple | Dónde se comprueba |
+|---|---|---|
+| CA1 — bienvenida sin coche | ✅ | `App.test.tsx`: primera visita y coche guardado que ya no existe |
+| CA2 — tarjeta «Tu coche» | ✅ | `App.test.tsx`: nombre y capacidad; «Cambiar» abre «Elige tu coche» |
+| CA3 — campos, botones rápidos y modos | ✅ | `App.test.tsx`: botón rápido, campos de cada modo |
+| CA4 — modo «A tope» y precio recordado al abrir | ✅ | `App.test.tsx`: precio `1.579` recuperado como `1,579`; vacío en la primera visita |
+| CA5 — se conservan los valores | ✅ | `App.test.tsx`: al cambiar de modo y al ir a «Elige tu coche» y volver |
+| CA6 — resultado al momento | ✅ | `App.test.tsx`: «Pide 59 €» sin botón de calcular |
+| CA7 — textos de la tarjeta | ✅ | `resultText.test.ts`: las siete filas con su texto exacto |
+| CA8 — lleno al 100 % en los tres modos | ✅ | `calculatorForm.test.ts` y `App.test.tsx` |
+| CA9 — se anuncia el resultado | ✅ | `App.test.tsx`: región `aria-live="polite"` |
+| CA10–CA12 — errores al salir y al corregir | ✅ | `App.test.tsx`: sin error antes de salir, al salir, cambio de motivo y desaparición |
+| CA13 — objetivo y nivel actual | ✅ | `calculatorForm.test.ts` y `App.test.tsx`: se recomprueba al cambiar el nivel y con nivel no válido solo su regla |
+| CA14 — solo campos visibles | ✅ | `App.test.tsx`: el error del dinero se oculta en «A tope» y vuelve |
+| CA15 — teclado numérico | ✅ / ⏳ | `App.test.tsx`: `inputMode` de cada campo. ⏳ Probar en un Android y un iPhone reales |
+| CA16 — solo cifras | ✅ | `text.test.ts` y `App.test.tsx`: pegar `1.000` deja `1000` |
+| CA17 — recordar el precio | ✅ | `App.test.tsx`: cada precio válido se recuerda y uno no válido no lo sustituye |
+| CA18–CA19 — «Elige tu coche» | ✅ | `App.test.tsx`: secciones, nota final, «Seleccionado» y «Añadido por ti» |
+| CA20 — elegir un coche | ✅ | `App.test.tsx`: se selecciona, se recuerda y la calculadora usa su capacidad |
+| CA21–CA22 — búsqueda | ✅ | `App.test.tsx`: «corolla toy», secciones vacías ocultas, sin resultados y «Añadir mi coche» visible |
+| CA23 — borrar un coche propio | ✅ | `App.test.tsx`: cancelar, confirmar, borrar el seleccionado y sin «Borrar» en la lista |
+| CA24–CA28 — «Añadir mi coche» | ✅ | `App.test.tsx`: añadir y seleccionar, errores a la vez, al salir y repetido, límite de 10, cancelar. Escape y tocar fuera, comprobados en el navegador |
+| CA29 — aviso de guardado | ✅ | `App.test.tsx`: con un almacenamiento que falla aparece el aviso y la app sigue calculando |
+| CA30 — 360 px sin desplazamiento horizontal | ✅ | Navegador a 360 × 800: calculadora en los tres modos, «Pide 1000 €» (200 l a 5 €/l), «Elige tu coche» con un nombre de 40 caracteres y las dos hojas: `scrollWidth` = 360 |
+| CA31 — español | ✅ | `index.html` con `lang="es"`; todos los textos en español |
+| CA32 — etiquetas y errores accesibles | ✅ | `App.test.tsx`: `aria-invalid` y `aria-describedby` con el mensaje |
+| CA33 — teclado y foco | ✅ | `App.test.tsx`: foco al título al cambiar de pantalla y tras borrar. En el navegador: foco dentro de la hoja, en «Cancelar» al confirmar un borrado, Escape y vuelta al botón que la abrió |
+| CA34 — 44 × 44 px y modo activo | ✅ | Navegador: ningún botón ni campo visible mide menos de 44 px; `aria-pressed` en el selector |
+| CA35 — contraste AA y Lighthouse ≥ 90 | ✅ / ⏳ | Contraste calculado para cada pareja de colores: el mínimo es 4,97:1 (gris secundario sobre borde). ⏳ Lighthouse móvil en la URL pública |
+| CA36 — URL pública en Android e iOS | ⏳ | Depende de T1 (importar el repositorio en Vercel) |
+| CA37 — publicación automática desde `main` | ⏳ | Se comprueba con el merge de esta rama |
+| CA38 — enlace en el README | ⏳ | Se añade cuando exista la URL |
+
+### Cambios durante la implementación
+- **`ScreenTitle.tsx`:** componente pequeño, no previsto en el plan, para el `h1` de cada pantalla que recibe el foco al navegar (CA33).
+- **`describeResult(mode, evaluation)`:** recibe el resultado de `evaluateCalculator` en lugar de los textos de los campos, porque ya trae el objetivo y el dinero validados.
+- **Etiquetas de la tarjeta en minúscula inicial:** el texto se guarda como «Para llenar el depósito» y se muestra en mayúsculas con CSS, para que un lector de pantalla lo lea como palabras.
+- **Foco en «Cancelar» al confirmar un borrado:** `BottomSheet` enfoca el control marcado con `data-autofocus` para que la hoja empiece en la opción segura.
+- **Etiqueta visible del buscador** («Busca marca o modelo») en lugar de solo un texto de ejemplo, por CA32.
+- **«+ Añadir mi coche»** se añadió en T13, junto con su hoja, en vez de en T11, para no dejar un botón sin función.
+- **`src/test/memoryStore.ts`:** almacenamiento falso compartido por los tests de componentes, con una variante que falla al guardar.
+- **jsdom no implementa `<dialog>` modal:** `src/test/setup.ts` añade la versión mínima prevista; el foco y Escape se comprobaron en el navegador.
+- **Formato:** `npx prettier --check src` avisa de 12 archivos antiguos de `src/lib` por tener finales de línea CRLF en la copia de trabajo de Windows (`core.autocrlf`). En el repositorio están bien y no se han tocado.
+- La spec no ha cambiado.
+
+### Pendiente
+- **T1 (autor):** importar el repositorio en Vercel. Después: añadir el enlace al README (CA38), Lighthouse móvil en la URL (CA35), probar los teclados y la app en un Android y un iPhone reales (CA15, CA36) y comprobar que el merge a `main` se publica solo (CA37).
+- **Feature 005:** historial (guardar repostaje, pantalla «Historial», borrar repostajes y navegación inferior).

@@ -114,10 +114,10 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   - contraste AA;
   - Lighthouse móvil ≥ 90 en accesibilidad.
 
-  Anotar los resultados. (verificación: lista de comprobaciones anotada en el plan | cubre: CA15, CA30, CA31, CA33–CA36)
+  Anotar los resultados. **Hecho en local** (360 px, foco y teclado, 44 px y contraste; ver el plan, sección 9). **Pendiente:** teclados en móviles reales y Lighthouse en la URL pública, tras T1. (verificación: lista de comprobaciones anotada en el plan | cubre: CA15, CA30, CA31, CA33–CA36)
 - [ ] T15: Cerrar la feature:
   - añadir D7–D11 a `docs/decisiones.md`;
   - actualizar `README.md` (estado de la 004, enlace a la app publicada, stack y quitar «Todavía no hay interfaz») y el estado de la spec;
   - añadir al final del plan el repaso de los criterios.
 
-  CA37 se comprueba tras el merge a `main`. (verificación: revisión de los documentos y `npm run lint`, `npm test` y `npm run build` en verde | cubre: CA37, CA38)
+  CA37 se comprueba tras el merge a `main`. **Hecho:** D7–D11, README, estado de la spec y repaso de criterios. **Pendiente:** el enlace a la app en el README, tras T1. (verificación: revisión de los documentos y `npm run lint`, `npm test` y `npm run build` en verde | cubre: CA37, CA38)

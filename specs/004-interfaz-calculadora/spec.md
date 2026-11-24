@@ -1,6 +1,6 @@
 # Feature 004: Interfaz de la calculadora y los coches
 
-> **Estado:** aprobada el 24/11/2026.
+> **Estado:** implementada el 25/11/2026; quedan CA15, CA35 y CA36–CA38, que dependen de publicar en Vercel y de probar en móviles reales (ver [plan.md](plan.md), sección 9).
 > Primera de las dos specs de interfaz. Esta cubre la calculadora, la elección de coche y la publicación; la **005** cubrirá el historial (guardar un repostaje, la pantalla «Historial», borrar repostajes) y cerrará el MVP.
 
 ## Resumen y objetivo
