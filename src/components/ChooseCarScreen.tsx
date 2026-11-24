@@ -8,6 +8,7 @@ import {
   type CarRef,
   type CarState,
 } from '../lib/ownCars'
+import { AddCarSheet } from './AddCarSheet'
 import { BottomSheet } from './BottomSheet'
 import { ScreenTitle } from './ScreenTitle'
 
@@ -16,6 +17,7 @@ interface ChooseCarScreenProps {
   onBack: () => void
   onSelect: (ref: CarRef) => void
   onDelete: (name: string) => void
+  onAdd: (name: string, capacity: string) => void
 }
 
 export function ChooseCarScreen({
@@ -23,10 +25,12 @@ export function ChooseCarScreen({
   onBack,
   onSelect,
   onDelete,
+  onAdd,
 }: ChooseCarScreenProps) {
   const [query, setQuery] = useState('')
   // The own car waiting for the user to confirm its deletion (CA23).
   const [toDelete, setToDelete] = useState<string | null>(null)
+  const [adding, setAdding] = useState(false)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const deleted = useRef(false)
   // Filtered on every key; own cars first, as the search returns them (CA21).
@@ -103,10 +107,25 @@ export function ChooseCarScreen({
         </p>
       )}
 
-      <p className="mt-6 text-sm text-muted">
+      <button
+        type="button"
+        onClick={() => setAdding(true)}
+        className="mt-6 min-h-14 w-full rounded-2xl bg-lime px-4 text-lg font-bold hover:bg-lime-dark"
+      >
+        <span aria-hidden="true">+ </span>Añadir mi coche
+      </button>
+
+      <p className="mt-4 text-sm text-muted">
         La capacidad puede variar según el año y la versión. Compruébala en el
         manual de tu coche.
       </p>
+
+      <AddCarSheet
+        open={adding}
+        ownCars={cars.ownCars}
+        onSave={onAdd}
+        onClose={() => setAdding(false)}
+      />
 
       <BottomSheet
         open={toDelete !== null}

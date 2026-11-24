@@ -90,7 +90,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   - los coches de la lista no tienen «Borrar».
 
   (verificación: `npm test` y revisión con teclado en `npm run dev` | cubre: CA23, parte de CA29 y CA33)
-- [ ] T13: Crear `AddCarSheet.tsx`:
+- [x] T13: Crear `AddCarSheet.tsx`:
   - nombre y capacidad (solo cifras);
   - errores al salir del campo y todos a la vez al «Guardar»;
   - un coche válido se añade, queda seleccionado, se cierra la hoja y se vuelve a la calculadora;

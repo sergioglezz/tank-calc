@@ -6,6 +6,7 @@ import {
 } from './components/CalculatorScreen'
 import { ChooseCarScreen } from './components/ChooseCarScreen'
 import {
+  addOwnCar,
   removeOwnCar,
   resolveSelected,
   selectCar,
@@ -55,6 +56,14 @@ function App({ storage }: AppProps) {
 
   const chooseCar = (ref: CarRef) => {
     updateCars(selectCar(cars, ref))
+    goTo('calculator')
+  }
+
+  /** A new car is selected straight away (CA26). */
+  const addCar = (name: string, capacity: string) => {
+    const result = addOwnCar(cars, name, capacity)
+    if (!result.ok) return
+    updateCars(selectCar(result.state, { source: 'own', name: name.trim() }))
     goTo('calculator')
   }
 
@@ -112,6 +121,7 @@ function App({ storage }: AppProps) {
             onBack={() => goTo('calculator')}
             onSelect={chooseCar}
             onDelete={(name) => updateCars(removeOwnCar(cars, name))}
+            onAdd={addCar}
           />
         )}
       </main>

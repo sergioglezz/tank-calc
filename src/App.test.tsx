@@ -479,4 +479,140 @@ describe('App', () => {
       )
     })
   })
+
+  describe('add my car', () => {
+    const openAddCar = async (store: MemoryStore = new MemoryStore()) => {
+      const result = renderApp(store)
+      await result.user.click(
+        screen.queryByRole('button', { name: 'Elegir coche' }) ??
+          screen.getByRole('button', { name: 'Cambiar coche' }),
+      )
+      await result.user.click(
+        screen.getByRole('button', { name: 'Añadir mi coche' }),
+      )
+      return {
+        ...result,
+        dialog: screen.getByRole('dialog', { name: 'Añadir mi coche' }),
+      }
+    }
+
+    it('adds the car, selects it and goes back to the calculator (CA24, CA26)', async () => {
+      const store = new MemoryStore()
+      const { user, dialog } = await openAddCar(store)
+      await user.type(
+        within(dialog).getByRole('textbox', { name: 'Nombre' }),
+        '  Mi furgoneta ',
+      )
+      await user.type(
+        within(dialog).getByRole('textbox', {
+          name: 'Capacidad del depósito (l)',
+        }),
+        '60',
+      )
+      await user.click(within(dialog).getByRole('button', { name: 'Guardar' }))
+
+      expect(document.activeElement).toBe(heading('Calculadora'))
+      expect(
+        screen.getByRole('region', { name: 'Tu coche' }).textContent,
+      ).toContain('Mi furgoneta · 60')
+      expect(store.getItem(STORAGE_KEYS.ownCars)).toBe(
+        JSON.stringify([{ name: 'Mi furgoneta', capacity: 60 }]),
+      )
+      expect(store.getItem(STORAGE_KEYS.selectedCar)).toBe(
+        JSON.stringify({ source: 'own', name: 'Mi furgoneta' }),
+      )
+    })
+
+    it('shows every error at once when saving invalid data (CA25)', async () => {
+      const { user, dialog } = await openAddCar()
+      await user.click(within(dialog).getByRole('button', { name: 'Guardar' }))
+      expect(
+        within(dialog).getByText('Introduce un nombre para el coche.'),
+      ).toBeTruthy()
+      expect(
+        within(dialog).getByText('Introduce la capacidad del depósito.'),
+      ).toBeTruthy()
+      expect(screen.getByRole('dialog', { name: 'Añadir mi coche' })).toBe(
+        dialog,
+      )
+    })
+
+    it('shows an error when leaving a field and for a repeated name (CA25)', async () => {
+      const { user, dialog } = await openAddCar(storeWithCar('Mi León'))
+      const name = within(dialog).getByRole('textbox', { name: 'Nombre' })
+      await user.type(name, 'MI LEON')
+      expect(
+        within(dialog).queryByText('Ya tienes un coche con ese nombre.'),
+      ).toBeNull()
+      await user.tab()
+      expect(
+        within(dialog).getByText('Ya tienes un coche con ese nombre.'),
+      ).toBeTruthy()
+      expect(name.getAttribute('aria-invalid')).toBe('true')
+
+      await user.type(
+        within(dialog).getByRole('textbox', {
+          name: 'Capacidad del depósito (l)',
+        }),
+        '40,5',
+      )
+      await user.tab()
+      expect(
+        within(dialog).getByText(
+          'Escribe una capacidad entera entre 1 y 200 litros.',
+        ),
+      ).toBeTruthy()
+    })
+
+    it('shows the limit message with 10 own cars (CA27)', async () => {
+      const store = new MemoryStore({
+        [STORAGE_KEYS.ownCars]: JSON.stringify(
+          Array.from({ length: 10 }, (_, i) => ({
+            name: `Coche ${i + 1}`,
+            capacity: 50,
+          })),
+        ),
+      })
+      const { user, dialog } = await openAddCar(store)
+      expect(
+        within(dialog).getByText(
+          'Ya tienes 10 coches guardados. Borra uno para añadir otro.',
+        ),
+      ).toBeTruthy()
+      expect(within(dialog).queryByRole('textbox')).toBeNull()
+      await user.click(within(dialog).getByRole('button', { name: 'Cerrar' }))
+      expect(screen.queryByRole('dialog')).toBeNull()
+    })
+
+    it('cancelling adds nothing and starts empty next time (CA28)', async () => {
+      const store = new MemoryStore()
+      const { user, dialog } = await openAddCar(store)
+      await user.type(
+        within(dialog).getByRole('textbox', { name: 'Nombre' }),
+        'Borrador',
+      )
+      await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
+      expect(screen.queryByRole('dialog')).toBeNull()
+      expect(screen.queryByRole('region', { name: 'Mis coches' })).toBeNull()
+      expect(store.getItem(STORAGE_KEYS.ownCars)).toBe(null)
+
+      await user.click(screen.getByRole('button', { name: 'Añadir mi coche' }))
+      expect(
+        (screen.getByRole('textbox', { name: 'Nombre' }) as HTMLInputElement)
+          .value,
+      ).toBe('')
+    })
+
+    it('keeps the add button when no car matches (CA22)', async () => {
+      const { user } = renderApp()
+      await user.click(screen.getByRole('button', { name: 'Elegir coche' }))
+      await user.type(
+        screen.getByRole('searchbox', { name: 'Busca marca o modelo' }),
+        'zzz',
+      )
+      expect(
+        screen.getByRole('button', { name: 'Añadir mi coche' }),
+      ).toBeTruthy()
+    })
+  })
 })
