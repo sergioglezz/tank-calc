@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+
+/* Colores del mockup (docs/design) y fuente del sistema (D8). */
+@theme {
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+
+  --color-canvas: #f3f5f0;
+  --color-card: #ffffff;
+  --color-line: #dfe5da;
+  --color-mist: #e6ebe2;
+  --color-ink: #1a2e27;
+  --color-muted: #56625b;
+  --color-lime: #cdf074;
+  --color-lime-dark: #b9df57;
+  --color-selected: #e7efe0;
+  --color-selected-line: #8fb865;
+  --color-danger: #b3261e;
+  --color-danger-soft: #fdf0ee;
+}
+
+@layer base {
+  body {
+    @apply bg-canvas font-sans text-ink antialiased;
+  }
+}
