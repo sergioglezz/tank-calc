@@ -1,5 +1,7 @@
 # Feature 001: Llenar a tope (cálculo)
 
+> **Estado:** cerrada el 24/11/2026. Se cumplen los 13 criterios de aceptación (ver [plan.md](plan.md), sección 9). PR: sergioglezz/tank-calc#1.
+
 ## Resumen y objetivo
 Base de tank-calc: el cálculo de «llenar a tope», sin interfaz. A partir de la capacidad del depósito, el nivel actual y el precio por litro (tal como los escribiría el usuario), la app sabe:
 - comprobar si los datos son válidos y, si no lo son, explicar por qué en español;
@@ -39,7 +41,7 @@ Objetivo: que lo que no puede fallar (los números) esté terminado y comprobado
   - importe exacto = litros que faltan × P, redondeado a céntimos;
   - importe sin pasarte = importe exacto **sin redondear**, truncado a euros enteros.
 - CA7: Ejemplo de referencia: capacidad 50 l, nivel 25 %, precio 1,579 €/l → faltan 37,5 l; importe exacto 59,21 €; importe sin pasarte 59 €.
-- CA8: El importe sin pasarte nunca se redondea hacia arriba: con un importe exacto de 47,83 € es 47 €, y con uno de 47,999 € (que se presenta como 48,00 €) sigue siendo 47 €.
+- CA8: El importe sin pasarte nunca se redondea hacia arriba: con un importe exacto de 47,83 € es 47 €, y con uno de 47,995794 € (9,7 l al 1 % con 4,998 €/l, que se presenta como 48,00 €) sigue siendo 47 €.
 - CA9: Si el importe exacto es un número entero de euros (p. ej. 60,00 €), el importe sin pasarte es ese mismo número (60 €), sin errores de precisión.
 - CA10: Con el nivel al 100 %, el cálculo indica que el depósito está lleno en vez de devolver cifras a cero.
 - CA11: Con el nivel al 0 %, el cálculo se hace con normalidad (faltan C litros).

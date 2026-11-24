@@ -34,7 +34,7 @@ type FullTankResult =
 `parseDecimal(text): { value: number; decimals: number } | null`
 - Quita los espacios del principio y del final (CA2).
 - Acepta solo el patrón `^\d+([.,]\d+)?$`: dígitos y, como mucho, un separador. Cualquier otra cosa devuelve `null` (CA1 y CA3).
-- Devuelve también cuántos decimales se escribieron, para validar el máximo de decimales sin depender de la coma flotante.
+- Devuelve también cuántos decimales significativos se escribieron, sin contar los ceros a la derecha (`1,50` → 1), para validar el máximo de decimales sin depender de la coma flotante.
 
 ### `validation.ts`
 `validateCapacity`, `validateLevel` y `validatePrice` (texto → `FieldResult`), con las reglas de CA4 y los mensajes exactos de la tabla de CA5. `reason: 'empty'` si el texto, sin espacios, está vacío; `'invalid'` en cualquier otro error.
@@ -71,11 +71,11 @@ Con `Intl.NumberFormat('es-ES', …)` (CA13):
 ## 5. Tests
 - **`parseDecimal.test.ts`:** coma, punto, espacios, vacío, letras, `-3`, `+3`, `1e3`, `1.000,5`, `1,2,3` y número de decimales.
 - **`validation.test.ts`:** cada extremo de CA4 y los casos de la sección de casos límite, y el texto exacto de cada mensaje de CA5.
-- **`fillUp.test.ts`:** CA7; 0 % (CA11); 100 % (CA10); menos de 1 €; importe exacto entero (CA9); un caso de 47,999 € → 47 (CA8); y la combinación con los valores máximos (200 l, 0 %, 5 €/l), que debe dar un número finito (CA12).
+- **`fillUp.test.ts`:** CA7; 0 % (CA11); 100 % (CA10); menos de 1 €; importe exacto entero en el que la coma flotante fallaría (11,2 l al 25 % con 2,5 €/l → 21 €, CA9); 47,995794 € → 47 (CA8); y las combinaciones con los valores máximos y mínimos, que deben dar números finitos (CA12).
 - **`format.test.ts`:** los tres formatos de CA13.
 
 ## 6. Archivos
-**Nuevos:** `package.json`, `package-lock.json`, `index.html`, `vite.config.ts`, `tsconfig*.json`, `.oxlintrc.json`, `.prettierrc`, `.gitignore`, `src/main.tsx`, `src/App.tsx` (marcador), `src/lib/{parseDecimal,validation,fillUp,format}.ts` y sus `.test.ts`, `.github/workflows/ci.yml`, `docs/decisiones.md`.
+**Nuevos:** `package.json`, `package-lock.json`, `index.html`, `vite.config.ts`, `tsconfig*.json`, `.oxlintrc.json`, `.prettierrc`, `.prettierignore`, `.gitignore`, `src/main.tsx`, `src/App.tsx` (marcador), `src/lib/{parseDecimal,validation,fillUp,format}.ts` y sus `.test.ts`, `.github/workflows/ci.yml`, `docs/decisiones.md`.
 **Modificados:** `README.md` (qué hay hecho y comandos) y `AGENTS.md` (tabla de comandos).
 **Eliminados:** los archivos de ejemplo de la plantilla (`App.css`, `index.css`, logos y assets).
 
@@ -83,3 +83,36 @@ Con `Intl.NumberFormat('es-ES', …)` (CA13):
 Registradas en [docs/decisiones.md](../../docs/decisiones.md):
 - D1: Cálculo del dinero en enteros para un truncado exacto.
 - D2: oxlint en lugar de ESLint.
+
+## 9. Cierre de la feature
+Repaso de los criterios de aceptación contra el código y los tests (74 en verde, lint, build y CI en verde).
+
+| CA | Se cumple | Dónde se comprueba |
+|---|---|---|
+| CA1 — coma y punto | ✅ | `parseDecimal.test.ts` (coma y punto); `validation.test.ts` (`1,579` y `1.579`) |
+| CA2 — espacios en los extremos | ✅ | `parseDecimal.test.ts`; `validation.test.ts` (` 60.0 `) |
+| CA3 — formatos no admitidos | ✅ | `parseDecimal.test.ts`: vacío, letras, `-3`, `+3`, `1e3`, `1.000,5`, `1,2,3`, `,5`, `5,`, espacios internos |
+| CA4 — rangos y decimales | ✅ | `validation.test.ts`: extremos aceptados y rechazados de los tres datos |
+| CA5 — mensajes vacío / no válido | ✅ | `validation.test.ts` compara el texto exacto de los seis mensajes y el `reason` |
+| CA6 — fórmulas | ✅ | `fillUp.test.ts`, mediante los casos de CA7–CA11 |
+| CA7 — ejemplo de referencia | ✅ | `fillUp.test.ts`: 37,5 l; 59,21 €; 59 € |
+| CA8 — nunca redondea hacia arriba | ✅ | `fillUp.test.ts` (47,995794 € → 47 €); `format.test.ts` (47,99 → `47 €`) |
+| CA9 — importe entero exacto | ✅ | `fillUp.test.ts`: 11,2 l, 25 %, 2,5 €/l → 21 € (en coma flotante saldría 20 €) |
+| CA10 — depósito lleno | ✅ | `fillUp.test.ts`: `status: 'full'` |
+| CA11 — depósito vacío | ✅ | `fillUp.test.ts`: 40 l al 0 % → 40 l |
+| CA12 — nunca `NaN` ni `Infinity` | ✅ | `fillUp.test.ts` en los extremos máximo y mínimo; con datos válidos todo es aritmética entera de 10⁹ como máximo, sin divisiones entre datos |
+| CA13 — formato español | ✅ | `format.test.ts`: `59,21 €`, `59 €`, `37,50 l` |
+
+### Cambios durante la implementación
+- **Linter:** oxlint en lugar de ESLint, porque la plantilla actual de Vite ya lo trae. Se actualizó la constitución (D2).
+- **Decimales significativos:** los ceros a la derecha no cuentan como decimales (`50,0` % es válido). `,5` y `5,` no se admiten. Se añadió a los casos límite de la spec.
+- **Ejemplo de CA8:** 47,999 € no se puede obtener con datos válidos, así que se usa 47,995794 € (9,7 l, 1 %, 4,998 €/l). Se actualizó la spec.
+- **`.prettierignore`:** excluye los `.md` para que Prettier no reformatee las specs.
+- **`"strict": true` explícito en los `tsconfig`:** TypeScript 7 ya lo activa por defecto, pero así se ve que se cumple la constitución.
+- **Vitest sin configuración:** su entorno por defecto ya es `node`, así que `vite.config.ts` queda como en la plantilla.
+- **Formato:** `Intl` separa el número de la unidad con un espacio que no se parte (U+00A0), y `formatLiters` hace lo mismo. `formatWholeEuros` trunca su entrada por seguridad.
+- **Plantilla:** tampoco se copiaron el favicon ni la carpeta `public/`, que solo tenían logos de ejemplo.
+
+### Pendiente para otras features
+- Interfaz, publicación en Vercel y el test de componente que pide la constitución: specs de interfaz basadas en Figma (ver la spec, «Para tener en cuenta en las specs de interfaz»).
+- Modos «Llenar hasta X %» y «Tengo X €».
