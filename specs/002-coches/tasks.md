@@ -13,8 +13,8 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
 - [x] T4: Implementar `carCatalog.ts` (`catalogKey`, `catalogLabel`, `catalogCars` ordenada y `findCatalogCar`) con sus tests. (verificación: `npm test` | cubre: CA1, CA4, orden de la lista de CA9)
 
 ## Coches propios
-- [ ] T5: Implementar en `ownCars.ts` `validateCarName` y `addOwnCar`, con el límite de 10 y todos los errores a la vez, con sus tests. (verificación: `npm test` | cubre: CA11, CA12, CA13, CA14)
-- [ ] T6: Añadir `removeOwnCar`, `selectCar` y `resolveSelected` con sus tests, incluido borrar el coche seleccionado y la inmutabilidad del estado. (verificación: `npm test` | cubre: CA15, CA16)
+- [x] T5: Implementar en `ownCars.ts` `validateCarName` y `addOwnCar`, con el límite de 10 y todos los errores a la vez, con sus tests. (verificación: `npm test` | cubre: CA11, CA12, CA13, CA14)
+- [x] T6: Añadir `removeOwnCar`, `selectCar` y `resolveSelected` con sus tests, incluido borrar el coche seleccionado y la inmutabilidad del estado. (verificación: `npm test` | cubre: CA15, CA16)
 
 ## Búsqueda
 - [ ] T7: Implementar `carSearch.ts` (`searchCars`) con sus tests: palabras en cualquier orden, sin tildes ni mayúsculas, texto vacío, sin coincidencias y orden de los resultados. (verificación: `npm test` | cubre: CA5, CA6, CA7, CA8, CA9, CA10)

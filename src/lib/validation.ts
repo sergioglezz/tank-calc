@@ -1,7 +1,7 @@
 import { parseDecimal, type ParsedDecimal } from './parseDecimal'
 
-export type FieldResult =
-  | { ok: true; value: number }
+export type FieldResult<T = number> =
+  | { ok: true; value: T }
   | { ok: false; reason: 'empty' | 'invalid'; message: string }
 
 interface FieldRule {
