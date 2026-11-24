@@ -767,10 +767,10 @@ describe('App', () => {
         .getAllByRole('listitem')
         .map((row) => row.textContent.replace(/\s+/g, ' '))
       expect(rows).toEqual([
-        '24/11/202616 l · 1,5 €/l25 €',
-        '24/11/202613 l · 1,5 €/l · Seat Ibiza20 €',
-        '20/11/202618 l · 1,579 €/l · Seat Ibiza30 €',
-        '30/10/202625 l · 1,6 €/l40 €',
+        '24/11/202616 l · 1,5 €/l25 €Borrar',
+        '24/11/202613 l · 1,5 €/l · Seat Ibiza20 €Borrar',
+        '20/11/202618 l · 1,579 €/l · Seat Ibiza30 €Borrar',
+        '30/10/202625 l · 1,6 €/l40 €Borrar',
       ])
     })
 
@@ -786,6 +786,99 @@ describe('App', () => {
       )
       expect(region('Repostajes')).toContain('1 repostaje')
       expect(region('La última vez gastaste')).toContain('30 €')
+    })
+
+    const confirmIn = () =>
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Borrar',
+      })
+
+    it('asks before deleting a refuel; cancelling keeps it (CA18)', async () => {
+      const { user } = await openHistory(storeWithRefuels())
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Borrar el repostaje del 20/11/2026 de 30\u00a0€',
+        }),
+      )
+      const dialog = screen.getByRole('dialog', {
+        name: '¿Borrar el repostaje del 20/11/2026 de 30\u00a0€?',
+      })
+      expect(document.activeElement).toBe(
+        within(dialog).getByRole('button', { name: 'Cancelar' }),
+      )
+      await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
+      expect(screen.queryByRole('dialog')).toBeNull()
+      expect(region('Repostajes')).toContain('4 repostajes')
+    })
+
+    it('deletes the refuel and updates everything (CA19, CA22)', async () => {
+      const store = storeWithRefuels()
+      const { user } = await openHistory(store)
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Borrar el repostaje del 24/11/2026 de 25\u00a0€',
+        }),
+      )
+      await user.click(confirmIn())
+
+      expect(document.activeElement).toBe(heading('Tu historial'))
+      expect(region('Repostajes')).toContain('3 repostajes')
+      expect(region('La última vez gastaste')).toContain('20 €')
+      expect(region('Este mes')).toContain('Este mes50 €')
+      expect(region('Este mes')).toContain('24/11/202620 €')
+      const saved = JSON.parse(store.getItem(STORAGE_KEYS.refuels) ?? '[]')
+      expect(saved.map((refuel: { id: number }) => refuel.id)).toEqual([
+        3, 2, 1,
+      ])
+    })
+
+    it('deletes only the chosen one of two identical refuels (CA19)', async () => {
+      const twin = { ...REFUELS[1], id: 5 }
+      const { user } = await openHistory(storeWithRefuels([REFUELS[1], twin]))
+      const buttons = screen.getAllByRole('button', {
+        name: 'Borrar el repostaje del 20/11/2026 de 30\u00a0€',
+      })
+      expect(buttons).toHaveLength(2)
+      await user.click(buttons[1])
+      await user.click(confirmIn())
+      expect(region('Repostajes')).toContain('1 repostaje')
+    })
+
+    it('shows the empty history after deleting the last refuel (CA20)', async () => {
+      const { user } = await openHistory(storeWithRefuels(REFUELS.slice(0, 1)))
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Borrar el repostaje del 30/10/2026 de 40\u00a0€',
+        }),
+      )
+      await user.click(confirmIn())
+      expect(
+        screen.getByRole('heading', {
+          name: 'Aún no has guardado ningún repostaje',
+        }),
+      ).toBeTruthy()
+      expect(document.activeElement).toBe(heading('Tu historial'))
+    })
+
+    it('warns when the history cannot be saved (CA22)', async () => {
+      const store = new FailingStore({
+        [STORAGE_KEYS.refuels]: JSON.stringify(REFUELS.slice(0, 1)),
+      })
+      const { user } = await openHistory(store)
+      await user.click(
+        screen.getByRole('button', {
+          name: 'Borrar el repostaje del 30/10/2026 de 40\u00a0€',
+        }),
+      )
+      await user.click(confirmIn())
+      expect(screen.getByRole('status').textContent).toContain(
+        'No se han podido guardar tus datos',
+      )
+      expect(
+        screen.getByRole('heading', {
+          name: 'Aún no has guardado ningún repostaje',
+        }),
+      ).toBeTruthy()
     })
 
     it('treats unreadable data as an empty history (CA21)', async () => {

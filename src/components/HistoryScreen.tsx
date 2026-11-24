@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react'
 import type { IsoDate } from '../lib/dates'
 import {
   formatDate,
@@ -12,6 +13,7 @@ import {
   type Refuel,
   type RefuelHistory,
 } from '../lib/refuels'
+import { BottomSheet } from './BottomSheet'
 import { ScreenTitle } from './ScreenTitle'
 
 interface HistoryScreenProps {
@@ -19,27 +21,77 @@ interface HistoryScreenProps {
   today: IsoDate
   focusOnMount: boolean
   onGoToCalculator: () => void
+  onDelete: (id: number) => void
 }
+
+/** «24/11/2026 de 45 €», to name a refuel when deleting it. */
+const refuelName = ({ date, euros }: Refuel): string =>
+  `${formatDate(date)} de ${formatEuros(euros)}`
 
 export function HistoryScreen({
   history,
   today,
   focusOnMount,
   onGoToCalculator,
+  onDelete,
 }: HistoryScreenProps) {
   const last = lastRefuel(history)
+  // The refuel waiting for the user to confirm its deletion (CA18).
+  const [toDelete, setToDelete] = useState<Refuel | null>(null)
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const deleted = useRef(false)
+
   return (
     <>
-      <ScreenTitle focusOnMount={focusOnMount}>Tu historial</ScreenTitle>
+      <ScreenTitle focusOnMount={focusOnMount} ref={titleRef}>
+        Tu historial
+      </ScreenTitle>
       {last === null ? (
         <EmptyHistory onGoToCalculator={onGoToCalculator} />
       ) : (
         <>
           <LastRefuel refuel={last} />
           <ThisMonth history={history} today={today} />
-          <RefuelList history={history} />
+          <RefuelList history={history} onDelete={setToDelete} />
         </>
       )}
+
+      <BottomSheet
+        open={toDelete !== null}
+        title={
+          toDelete === null
+            ? ''
+            : `¿Borrar el repostaje del ${refuelName(toDelete)}?`
+        }
+        onClose={() => {
+          setToDelete(null)
+          // Its row is gone, so the focus goes to the title (CA19).
+          if (deleted.current) titleRef.current?.focus()
+          deleted.current = false
+        }}
+      >
+        <div className="mt-6 space-y-3">
+          <button
+            type="button"
+            onClick={() => {
+              if (toDelete !== null) onDelete(toDelete.id)
+              deleted.current = true
+              setToDelete(null)
+            }}
+            className="min-h-14 w-full rounded-2xl bg-danger px-4 text-lg font-bold text-white"
+          >
+            Borrar
+          </button>
+          <button
+            type="button"
+            onClick={() => setToDelete(null)}
+            data-autofocus
+            className="min-h-14 w-full rounded-2xl border border-line px-4 text-lg font-bold hover:bg-mist"
+          >
+            Cancelar
+          </button>
+        </div>
+      </BottomSheet>
     </>
   )
 }
@@ -144,7 +196,13 @@ function ThisMonth({
 }
 
 /** CA16 of spec 005. */
-function RefuelList({ history }: { history: RefuelHistory }) {
+function RefuelList({
+  history,
+  onDelete,
+}: {
+  history: RefuelHistory
+  onDelete: (refuel: Refuel) => void
+}) {
   const count = history.length
   return (
     <section aria-labelledby="refuels" className="mt-8">
@@ -165,9 +223,19 @@ function RefuelList({ history }: { history: RefuelHistory }) {
                 {refuelDetails(refuel)}
               </p>
             </div>
-            <p className="shrink-0 text-xl font-extrabold">
-              {formatEuros(refuel.euros)}
-            </p>
+            <div className="flex shrink-0 flex-col items-end gap-1">
+              <p className="text-xl font-extrabold">
+                {formatEuros(refuel.euros)}
+              </p>
+              <button
+                type="button"
+                onClick={() => onDelete(refuel)}
+                aria-label={`Borrar el repostaje del ${refuelName(refuel)}`}
+                className="min-h-11 min-w-11 rounded-xl px-3 font-semibold text-danger hover:bg-danger-soft"
+              >
+                Borrar
+              </button>
+            </div>
           </li>
         ))}
       </ul>

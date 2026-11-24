@@ -19,10 +19,12 @@ import {
   loadRefuels,
   loadSavedData,
   saveCarState,
+  saveRefuels,
   savePrice,
   type KeyValueStore,
 } from './lib/storage'
 import { todayIso, type IsoDate } from './lib/dates'
+import { removeRefuel, type RefuelHistory } from './lib/refuels'
 import { validatePrice } from './lib/validation'
 
 export interface AppProps {
@@ -38,7 +40,7 @@ type Screen = 'calculator' | 'chooseCar' | 'history'
 function App({ storage, getToday = todayIso }: AppProps) {
   const [saved] = useState(() => loadSavedData(storage))
   const [cars, setCars] = useState<CarState>(saved.cars)
-  const [refuels] = useState(() => loadRefuels(storage))
+  const [refuels, setRefuels] = useState(() => loadRefuels(storage))
   const [form, setForm] = useState<CalculatorFormState>(() => ({
     mode: 'fullTank',
     fields: { level: '', price: saved.price ?? '', target: '', money: '' },
@@ -61,6 +63,12 @@ function App({ storage, getToday = todayIso }: AppProps) {
   const updateCars = (next: CarState) => {
     setCars(next)
     setSaveFailed(!saveCarState(storage, next))
+  }
+
+  /** Every change to the history is remembered at once (CA15 of spec 003). */
+  const updateRefuels = (next: RefuelHistory) => {
+    setRefuels(next)
+    setSaveFailed(!saveRefuels(storage, next))
   }
 
   const chooseCar = (ref: CarRef) => {
@@ -131,6 +139,7 @@ function App({ storage, getToday = todayIso }: AppProps) {
             today={getToday()}
             focusOnMount={hasNavigated}
             onGoToCalculator={() => goTo('calculator')}
+            onDelete={(id) => updateRefuels(removeRefuel(refuels, id))}
           />
         ) : (
           <ChooseCarScreen

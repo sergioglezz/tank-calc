@@ -31,7 +31,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   - datos dañados.
 
   (verificación: `npm test` | cubre: CA13–CA17, CA21)
-- [ ] T4: Añadir «Borrar» a cada repostaje, con la confirmación en `BottomSheet`, y `removeRefuel` con `saveRefuels` en `App` (y el aviso si falla).
+- [x] T4: Añadir «Borrar» a cada repostaje, con la confirmación en `BottomSheet`, y `removeRefuel` con `saveRefuels` en `App` (y el aviso si falla).
 
   Tests:
   - cancelar;
