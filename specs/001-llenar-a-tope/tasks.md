@@ -10,7 +10,7 @@ Basadas en el [plan](plan.md). Se hacen en orden y de una en una. Al cerrar cada
 ## Lógica (`src/lib/`)
 - [x] T4: Implementar `parseDecimal.ts` con sus tests. (verificación: `npm test` | cubre: CA1, CA2, CA3)
 - [x] T5: Implementar `validation.ts` (`validateCapacity`, `validateLevel`, `validatePrice`) con tests de cada extremo, de los decimales de más y del texto de cada mensaje. (verificación: `npm test` | cubre: CA4, CA5)
-- [ ] T6: Implementar `fillUp.ts` (`calculateFullTank`, en enteros según D1) con tests: CA7, 0 %, 100 %, menos de 1 €, importe exacto entero, 47,999 € → 47 y valores máximos. (verificación: `npm test` | cubre: CA6–CA12)
+- [x] T6: Implementar `fillUp.ts` (`calculateFullTank`, en enteros según D1) con tests: CA7, 0 %, 100 %, menos de 1 €, importe exacto entero, 47,999 € → 47 y valores máximos. (verificación: `npm test` | cubre: CA6–CA12)
 - [ ] T7: Implementar `format.ts` (`formatEuros`, `formatWholeEuros`, `formatLiters`) con tests. (verificación: `npm test` | cubre: CA13)
 
 ## Cierre
