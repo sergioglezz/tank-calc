@@ -32,7 +32,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   - foco en el `h1` al cambiar de pantalla.
 
   Tests: bienvenida en la primera visita; tarjeta del coche con un coche guardado; «Elegir coche», «Cambiar» y «Volver» llevan a la pantalla correcta. (verificación: `npm test` y revisión en `npm run dev` | cubre: CA1, CA2, CA31, parte de CA18 y CA33)
-- [ ] T8: Crear `NumberField.tsx`, `ModeSelector.tsx` y `ResultCard.tsx`, y montar la calculadora. Incluye:
+- [x] T8: Crear `NumberField.tsx`, `ModeSelector.tsx` y `ResultCard.tsx`, y montar la calculadora. Incluye:
   - nivel con botones rápidos, precio, selector de modo, objetivo y dinero;
   - `inputMode`, filtro de cifras, `aria-pressed` y `aria-live`;
   - el estado del formulario guardado en `App`.

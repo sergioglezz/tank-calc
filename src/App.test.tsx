@@ -19,6 +19,15 @@ function renderApp(storage: KeyValueStore | null = new MemoryStore()) {
   return { user }
 }
 
+/** The result card text, with every kind of space as a plain one. */
+const resultText = () =>
+  screen
+    .getByRole('region', { name: 'Resultado' })
+    .textContent.replace(/\s+/g, ' ')
+
+const input = (name: string) =>
+  screen.getByRole('textbox', { name }) as HTMLInputElement
+
 const heading = (name: string) =>
   screen.getByRole('heading', { name, level: 1 })
 
@@ -71,6 +80,97 @@ describe('App', () => {
     it('does not move the focus on load', () => {
       renderApp()
       expect(document.activeElement).toBe(document.body)
+    })
+  })
+
+  describe('calculator', () => {
+    it('calculates as soon as the data is typed, without a button (CA6, CA7)', async () => {
+      const { user } = renderApp(storeWithCar())
+      expect(resultText()).toContain('Revisa los datos')
+      await user.type(input('Nivel actual (%)'), '25')
+      await user.type(input('Precio por litro (€/l)'), '1,579')
+      expect(resultText()).toContain('Pide 59 €')
+      expect(resultText()).toContain('37 l · el depósito queda al 99 %')
+      expect(screen.queryByRole('button', { name: /calcular/i })).toBeNull()
+    })
+
+    it('keeps every value when switching modes (CA5)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.type(input('Nivel actual (%)'), '25')
+      await user.type(input('Precio por litro (€/l)'), '1,579')
+
+      await user.click(screen.getByRole('button', { name: 'Hasta X %' }))
+      expect(
+        screen
+          .getByRole('button', { name: 'Hasta X %' })
+          .getAttribute('aria-pressed'),
+      ).toBe('true')
+      await user.type(input('% objetivo'), '75')
+      expect(resultText()).toContain('Pide 39 €')
+
+      await user.click(screen.getByRole('button', { name: 'Tengo X €' }))
+      expect(screen.queryByRole('textbox', { name: '% objetivo' })).toBeNull()
+      await user.type(input('Euros que tienes'), '30')
+      expect(resultText()).toContain('Con 30 € puedes añadir')
+      expect(resultText()).toContain('18 l')
+
+      await user.click(screen.getByRole('button', { name: 'Hasta X %' }))
+      expect(input('% objetivo').value).toBe('75')
+      expect(input('Nivel actual (%)').value).toBe('25')
+    })
+
+    it('keeps the data while choosing a car (CA5)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.type(input('Nivel actual (%)'), '40')
+      await user.click(screen.getByRole('button', { name: 'Cambiar coche' }))
+      await user.click(screen.getByRole('button', { name: 'Volver' }))
+      expect(input('Nivel actual (%)').value).toBe('40')
+    })
+
+    it('fills the level with a quick button', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.click(screen.getByRole('button', { name: '50 %' }))
+      expect(input('Nivel actual (%)').value).toBe('50')
+    })
+
+    it('keeps only digits in whole-number fields (CA16)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.click(screen.getByRole('button', { name: 'Tengo X €' }))
+      await user.click(input('Euros que tienes'))
+      await user.paste('1.000')
+      expect(input('Euros que tienes').value).toBe('1000')
+      await user.type(input('Nivel actual (%)'), '-3a')
+      expect(input('Nivel actual (%)').value).toBe('3')
+    })
+
+    it('lets the price have a decimal comma', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.type(input('Precio por litro (€/l)'), '1,579')
+      expect(input('Precio por litro (€/l)').value).toBe('1,579')
+    })
+
+    it('asks for the right keypad in each field (CA15)', async () => {
+      const { user } = renderApp(storeWithCar())
+      expect(input('Nivel actual (%)').inputMode).toBe('numeric')
+      expect(input('Precio por litro (€/l)').inputMode).toBe('decimal')
+      await user.click(screen.getByRole('button', { name: 'Hasta X %' }))
+      expect(input('% objetivo').inputMode).toBe('numeric')
+      await user.click(screen.getByRole('button', { name: 'Tengo X €' }))
+      expect(input('Euros que tienes').inputMode).toBe('numeric')
+    })
+
+    it('says the tank is full at 100 % in any mode (CA8)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.type(input('Nivel actual (%)'), '100')
+      expect(resultText()).toContain('Tu depósito ya está lleno')
+      await user.click(screen.getByRole('button', { name: 'Hasta X %' }))
+      expect(resultText()).toContain('Tu depósito ya está lleno')
+    })
+
+    it('announces the result to screen readers (CA9)', () => {
+      renderApp(storeWithCar())
+      const card = screen.getByRole('region', { name: 'Resultado' })
+      expect(card.getAttribute('aria-live')).toBe('polite')
     })
   })
 })
