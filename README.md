@@ -33,6 +33,15 @@ Cada repostaje se puede guardar en un historial para saber cuánto gastaste la �
 | Tengo 30 € | **30 €** | 18 l | 62 % |
 | Tengo 80 € | **59 €** (te sobran 21 €) | 37 l | 99 % |
 
+## Cómo se usa
+1. **Elige tu coche** en la lista o añade el tuyo con su nombre y la capacidad del depósito. La app lo recuerda para la próxima vez.
+2. **Escribe el nivel actual** del depósito (en %, o con los botones 25, 50 y 75 %) y **el precio por litro** del surtidor.
+3. **Elige el modo** («A tope», «Hasta X %» o «Tengo X €»). El resultado aparece al momento: lo que dices en caja, los litros y el nivel en que queda el depósito.
+4. **Pulsa «Guardar repostaje»** si quieres apuntarlo. Puedes cambiar el importe, el precio o el día antes de guardarlo.
+5. **Abre «Historial»** en la barra de abajo para ver cuánto gastaste la última vez, lo que llevas este mes, el gasto de cada día y todos tus repostajes, que puedes borrar uno a uno.
+
+Los datos se guardan solo en tu navegador: no hay cuentas ni servidor.
+
 ## Diseño
 El diseño es un mockup de orientación: la interfaz toma de él el estilo, la estructura y la navegación, pero las cifras, los mensajes y los formatos son los de las specs. Las capturas de cada pantalla están en [docs/design/](docs/design/).
 
