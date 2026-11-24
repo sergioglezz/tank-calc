@@ -52,6 +52,8 @@ Objetivo: que lo que no puede fallar (los números) esté terminado y comprobado
 - **Falta menos de 1 € (nivel < 100 %):** el importe sin pasarte es 0 €. El cálculo devuelve igualmente los litros y el importe exacto; cómo se avisa al usuario lo decidirá la spec de interfaz.
 - **Valores en los extremos:** 0,1 l y 200 l, 0 % y 100 %, 0,001 €/l y 5 €/l son válidos; 200,1 l, −1 %, 101 %, 50,5 % y 5,001 €/l no lo son.
 - **Decimales de más:** `50,25` l o `1,5799` €/l no son válidos aunque estén dentro del rango.
+- **Ceros a la derecha:** no cuentan como decimales. `50,0` % es un entero válido y `1,5790` €/l equivale a `1,579`.
+- **Sin parte entera o sin decimales:** `,5` y `5,` no se admiten como número.
 
 ## Fuera de alcance
 - **Cualquier interfaz:** pantallas, campos, botones, estilos, cuándo se muestran los errores, teclado del móvil, accesibilidad y diseño mobile-first. Irá en una o varias specs de interfaz basadas en el diseño de Figma del autor.
