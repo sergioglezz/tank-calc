@@ -10,7 +10,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
 - [x] T3: Añadir `formatPrice` y `formatDate` a `format.ts` con sus tests. (verificación: `npm test` | cubre: CA14)
 
 ## Validación
-- [ ] T4: Añadir `validatePaidEuros` y `validateRefuelDate` a `validation.ts` con sus tests: extremos, vacío, fecha vacía (hoy), hace 365 y 366 días, mañana, fecha que no existe y mensajes exactos. (verificación: `npm test` | cubre: CA2, CA4, CA6)
+- [x] T4: Añadir `validatePaidEuros` y `validateRefuelDate` a `validation.ts` con sus tests: extremos, vacío, fecha vacía (hoy), hace 365 y 366 días, mañana, fecha que no existe y mensajes exactos. (verificación: `npm test` | cubre: CA2, CA4, CA6)
 
 ## Historial
 - [ ] T5: Implementar en `refuels.ts` `sortRefuels` y `addRefuel`, con el coche seleccionado, todos los errores a la vez y el límite de 500, con sus tests. Incluye el test de que las etiquetas de la lista de modelos tienen como mucho 40 caracteres. (verificación: `npm test` | cubre: CA1, CA3, CA4, CA5, CA6, CA7, CA8, CA10)

@@ -1,3 +1,4 @@
+import { daysBetween, isValidIsoDate, type IsoDate } from './dates'
 import { parseDecimal, type ParsedDecimal } from './parseDecimal'
 
 export type FieldResult<T = number> =
@@ -62,6 +63,11 @@ const moneyRule: FieldRule = {
   invalidMessage: 'Escribe un importe entero entre 1 y 1000 €.',
 }
 
+const paidEurosRule: FieldRule = {
+  ...moneyRule,
+  emptyMessage: 'Introduce el importe pagado.',
+}
+
 const TARGET_NOT_ABOVE_LEVEL = 'El objetivo debe ser mayor que el nivel actual.'
 
 export const validateCapacity = (text: string): FieldResult =>
@@ -90,3 +96,32 @@ export function validateTargetLevel(
 
 export const validateMoney = (text: string): FieldResult =>
   validateField(text, moneyRule)
+
+export const validatePaidEuros = (text: string): FieldResult =>
+  validateField(text, paidEurosRule)
+
+const MAX_REFUEL_AGE_DAYS = 365
+
+const invalidDate = (message: string): FieldResult<IsoDate> => ({
+  ok: false,
+  reason: 'invalid',
+  message,
+})
+
+/** An empty date means `today`; otherwise, a day from the last 365 days. */
+export function validateRefuelDate(
+  text: string,
+  today: IsoDate,
+): FieldResult<IsoDate> {
+  const date = text.trim()
+  if (date === '') return { ok: true, value: today }
+  if (!isValidIsoDate(date)) return invalidDate('Introduce una fecha válida.')
+  // AAAA-MM-DD dates compare correctly as text (D6).
+  if (date > today) {
+    return invalidDate('La fecha no puede ser posterior a hoy.')
+  }
+  if (daysBetween(date, today) > MAX_REFUEL_AGE_DAYS) {
+    return invalidDate('La fecha no puede ser de hace más de un año.')
+  }
+  return { ok: true, value: date }
+}
