@@ -11,7 +11,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
 
 ## Lógica de la interfaz
 - [x] T4: Añadir `digitsOnly` a `text.ts`, e `isSameCar` y la exportación del mensaje del límite a `ownCars.ts`, con sus tests. (verificación: `npm test` | cubre: CA16, CA19, CA27)
-- [ ] T5: Implementar `calculatorForm.ts` (`evaluateCalculator`) con sus tests:
+- [x] T5: Implementar `calculatorForm.ts` (`evaluateCalculator`) con sus tests:
   - los tres modos con los ejemplos de la spec;
   - `null` con datos vacíos o no válidos;
   - nivel 100 con el objetivo o el dinero vacíos o no válidos;
