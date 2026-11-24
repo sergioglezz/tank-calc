@@ -615,4 +615,51 @@ describe('App', () => {
       ).toBeTruthy()
     })
   })
+
+  describe('bottom navigation', () => {
+    const nav = () => screen.getByRole('navigation', { name: 'Principal' })
+    const navButton = (name: string) =>
+      within(nav()).getByRole('button', { name })
+
+    it('goes to the history and back, moving the focus (CA1, CA2)', async () => {
+      const { user } = renderApp(storeWithCar())
+      expect(navButton('Calculadora').getAttribute('aria-current')).toBe('page')
+      expect(navButton('Historial').getAttribute('aria-current')).toBe(null)
+
+      await user.click(navButton('Historial'))
+      expect(document.activeElement).toBe(heading('Tu historial'))
+      expect(navButton('Historial').getAttribute('aria-current')).toBe('page')
+
+      await user.click(navButton('Calculadora'))
+      expect(document.activeElement).toBe(heading('Calculadora'))
+    })
+
+    it('does nothing when the active section is pressed (CA2)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.click(navButton('Calculadora'))
+      expect(document.activeElement).toBe(navButton('Calculadora'))
+    })
+
+    it('marks «Calculadora» while choosing a car and goes back with it (CA1, CA2)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.click(screen.getByRole('button', { name: 'Cambiar coche' }))
+      heading('Elige tu coche')
+      expect(navButton('Calculadora').getAttribute('aria-current')).toBe('page')
+
+      await user.click(navButton('Calculadora'))
+      expect(document.activeElement).toBe(heading('Calculadora'))
+    })
+
+    it('keeps the calculator data after visiting the history (CA3)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await user.type(input('Nivel actual (%)'), '105')
+      await user.tab()
+      await user.click(navButton('Historial'))
+      await user.click(navButton('Calculadora'))
+      expect(input('Nivel actual (%)').value).toBe('105')
+      expect(
+        screen.getByText('Escribe un porcentaje entero entre 0 y 100.'),
+      ).toBeTruthy()
+    })
+  })
 })

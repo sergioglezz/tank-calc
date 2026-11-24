@@ -8,7 +8,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
 - [x] T1: Añadir `shiftDays` a `dates.ts` con sus tests. Hacer que `App` reciba `getToday` (por defecto `todayIso`) y que los tests le pasen un día fijo. (verificación: `npm test` | cubre: base de CA7 y CA15)
 
 ## Navegación e historial
-- [ ] T2: Crear `BottomNav.tsx` y la pantalla `history` con su título y un margen inferior para que la barra no tape nada.
+- [x] T2: Crear `BottomNav.tsx` y la pantalla `history` con su título y un margen inferior para que la barra no tape nada.
 
   Tests:
   - ir al historial y volver;

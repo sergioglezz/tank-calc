@@ -24,7 +24,7 @@ Como en la 004, la interfaz no hace cálculos propios: los litros, las sumas, el
 
 ### Navegación
 - CA1: En todas las pantallas hay una **barra inferior fija** con «Calculadora» e «Historial» (capturas 01 y 06). Marca la pantalla activa, y «Elige tu coche» cuenta como «Calculadora». Un lector de pantalla sabe cuál es la página actual.
-- CA2: Al cambiar de pantalla desde la barra, el foco va al título de la nueva pantalla (como CA33 de la 004). Pulsar la pantalla que ya está activa no hace nada.
+- CA2: Al cambiar de pantalla desde la barra, el foco va al título de la nueva pantalla (como CA33 de la 004). Pulsar la pantalla que ya está activa no hace nada; desde «Elige tu coche», «Calculadora» vuelve a la calculadora.
 - CA3: Los datos de la calculadora (campos, modo y errores mostrados) se conservan al ir al historial y volver, como en CA5 de la 004.
 - CA4: La barra no tapa ningún contenido: el final de cada pantalla se puede ver por encima de ella.
 

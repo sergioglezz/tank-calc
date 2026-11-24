@@ -4,7 +4,9 @@ import {
   type CalculatorFormState,
   type Field,
 } from './components/CalculatorScreen'
+import { BottomNav } from './components/BottomNav'
 import { ChooseCarScreen } from './components/ChooseCarScreen'
+import { HistoryScreen } from './components/HistoryScreen'
 import {
   addOwnCar,
   removeOwnCar,
@@ -27,7 +29,7 @@ export interface AppProps {
 }
 
 /** No router: the screen is part of the state (D7). */
-type Screen = 'calculator' | 'chooseCar'
+type Screen = 'calculator' | 'chooseCar' | 'history'
 
 function App({ storage }: AppProps) {
   const [saved] = useState(() => loadSavedData(storage))
@@ -44,6 +46,8 @@ function App({ storage }: AppProps) {
   const [saveFailed, setSaveFailed] = useState(false)
 
   const goTo = (next: Screen) => {
+    // Pressing the section already shown does nothing (CA2 of spec 005).
+    if (next === screen) return
     setScreen(next)
     setHasNavigated(true)
   }
@@ -84,8 +88,9 @@ function App({ storage }: AppProps) {
       touched: { ...current.touched, [field]: true },
     }))
 
+  // The bottom padding keeps the end of each screen above the bar (CA4).
   return (
-    <div className="mx-auto min-h-dvh max-w-md px-5 pt-6 pb-12">
+    <div className="mx-auto min-h-dvh max-w-md px-5 pt-6 pb-32">
       <header className="flex items-center justify-between gap-3">
         <p className="text-2xl font-extrabold tracking-tight">tank-calc</p>
         <p className="rounded-lg bg-lime px-2 py-1 text-xs font-bold tracking-wide uppercase">
@@ -115,6 +120,8 @@ function App({ storage }: AppProps) {
               setForm((current) => ({ ...current, mode }))
             }
           />
+        ) : screen === 'history' ? (
+          <HistoryScreen focusOnMount={hasNavigated} />
         ) : (
           <ChooseCarScreen
             cars={cars}
@@ -125,6 +132,11 @@ function App({ storage }: AppProps) {
           />
         )}
       </main>
+
+      <BottomNav
+        active={screen === 'history' ? 'history' : 'calculator'}
+        onNavigate={goTo}
+      />
     </div>
   )
 }
