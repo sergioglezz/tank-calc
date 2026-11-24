@@ -17,7 +17,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
 - [x] T6: Añadir `removeRefuel`, `lastRefuel`, `dailySpending` y `monthTotal` con sus tests: borrar uno de dos idénticos, historial vacío, varios repostajes el mismo día, cambio de mes, fecha posterior a hoy e inmutabilidad. (verificación: `npm test` | cubre: CA9, CA11, CA12, CA13)
 
 ## Recordar entre visitas
-- [ ] T7: Añadir a `storage.ts` `loadRefuels` y `saveRefuels` con la clave `tank-calc:refuels` y sus tests con el almacenamiento falso: guardar y volver a cargar, primera visita, fallos al leer y al guardar, cada regla de descarte, más de 500, fechas antiguas o futuras que se conservan e independencia de los datos de la 002. (verificación: `npm test` | cubre: CA15, CA16, CA17, CA18)
+- [x] T7: Añadir a `storage.ts` `loadRefuels` y `saveRefuels` con la clave `tank-calc:refuels` y sus tests con el almacenamiento falso: guardar y volver a cargar, primera visita, fallos al leer y al guardar, cada regla de descarte, más de 500, fechas antiguas o futuras que se conservan e independencia de los datos de la 002. (verificación: `npm test` | cubre: CA15, CA16, CA17, CA18)
 
 ## Cierre
 - [ ] T8: Añadir D5 y D6 a `docs/decisiones.md`, actualizar el estado de la feature 003 en `README.md` y en la spec, y añadir al final del plan el repaso de los criterios de la spec. (verificación: revisión de los documentos y `npm run lint`, `npm test` y `npm run build` en verde | cubre: —)

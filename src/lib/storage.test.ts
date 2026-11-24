@@ -1,10 +1,13 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import type { CarState, OwnCar } from './ownCars'
+import { MAX_REFUELS, type Refuel } from './refuels'
 import {
   getBrowserStorage,
+  loadRefuels,
   loadSavedData,
   saveCarState,
   savePrice,
+  saveRefuels,
   STORAGE_KEYS,
   type KeyValueStore,
   type SavedData,
@@ -301,5 +304,198 @@ describe('savePrice', () => {
 
   it('returns false when saving throws', () => {
     expect(savePrice(brokenStore, '1,579')).toBe(false)
+  })
+})
+
+const refuel = (
+  id: number,
+  date: string,
+  car: string | null = null,
+): Refuel => ({
+  id,
+  date,
+  euros: 30,
+  price: 1.579,
+  liters: 18,
+  car,
+})
+
+const withRefuels = (value: unknown) =>
+  new MemoryStore({ [STORAGE_KEYS.refuels]: JSON.stringify(value) })
+
+const loadRefuelsFrom = (value: unknown) => loadRefuels(withRefuels(value))
+
+describe('loadRefuels', () => {
+  it('is empty on the first visit (CA15)', () => {
+    expect(loadRefuels(new MemoryStore())).toEqual([])
+  })
+
+  it('is empty without storage or when reading throws (CA16)', () => {
+    expect(loadRefuels(null)).toEqual([])
+    expect(loadRefuels(brokenStore)).toEqual([])
+  })
+
+  it.each(['[{"id": 1, ', '{"id": 1}', '"texto"', 'null', '42'])(
+    'is empty when the saved value is %j (CA16)',
+    (text) => {
+      expect(
+        loadRefuels(new MemoryStore({ [STORAGE_KEYS.refuels]: text })),
+      ).toEqual([])
+    },
+  )
+
+  it('sorts what it loads, newest first', () => {
+    const loaded = loadRefuelsFrom([
+      refuel(1, '2026-11-10'),
+      refuel(3, '2026-11-24'),
+      refuel(2, '2026-11-24'),
+    ])
+    expect(loaded.map((item) => item.id)).toEqual([3, 2, 1])
+  })
+
+  it('keeps refuels older than a year or after today (CA16)', () => {
+    const loaded = loadRefuelsFrom([
+      refuel(1, '2019-05-01'),
+      refuel(2, '2099-01-01'),
+    ])
+    expect(loaded.map((item) => item.date)).toEqual([
+      '2099-01-01',
+      '2019-05-01',
+    ])
+  })
+
+  it('keeps the valid extremes and a car name of 40 characters', () => {
+    const extremes: Refuel[] = [
+      { id: 1, date: '2026-11-24', euros: 1, price: 5, liters: 0, car: null },
+      {
+        id: 2,
+        date: '2026-11-24',
+        euros: 1000,
+        price: 0.001,
+        liters: 1_000_000,
+        car: 'a'.repeat(40),
+      },
+    ]
+    expect(loadRefuelsFrom(extremes)).toEqual([...extremes].reverse())
+  })
+
+  describe('drops invalid refuels and keeps the rest (CA16)', () => {
+    const good = refuel(1, '2026-11-20', 'Furgo')
+
+    it.each([
+      ['not an object', 'texto'],
+      ['an array', [1, '2026-11-20']],
+      ['no id', { ...good, id: undefined }],
+      ['id 0', { ...good, id: 0 }],
+      ['decimal id', { ...good, id: 1.5 }],
+      ['id as text', { ...good, id: '7' }],
+      ['a date that does not exist', { ...good, date: '2026-02-30' }],
+      ['a badly written date', { ...good, date: '20/11/2026' }],
+      ['euros with cents', { ...good, euros: 30.5 }],
+      ['0 euros', { ...good, euros: 0 }],
+      ['1001 euros', { ...good, euros: 1001 }],
+      ['euros as text', { ...good, euros: '30' }],
+      ['price 0', { ...good, price: 0 }],
+      ['price over 5', { ...good, price: 5.5 }],
+      ['price with 4 decimals', { ...good, price: 1.5799 }],
+      ['price as text', { ...good, price: '1,579' }],
+      ['liters that do not match', { ...good, liters: 19 }],
+      ['no liters', { ...good, liters: undefined }],
+      ['an empty car name', { ...good, car: '' }],
+      ['a car name with spaces at the ends', { ...good, car: ' Furgo' }],
+      ['a car name of 41 characters', { ...good, car: 'a'.repeat(41) }],
+      ['a car that is not text', { ...good, car: 7 }],
+    ])('drops one with %s', (_, item) => {
+      const kept = refuel(2, '2026-11-24')
+      expect(loadRefuelsFrom([item, kept])).toEqual([kept])
+    })
+
+    it('keeps the first refuel of a repeated id', () => {
+      const first = refuel(5, '2026-11-20')
+      const second = refuel(5, '2026-11-24')
+      expect(loadRefuelsFrom([first, second])).toEqual([first])
+    })
+
+    it('does not let an invalid refuel block the id of a valid one', () => {
+      const valid = refuel(5, '2026-11-24')
+      expect(loadRefuelsFrom([{ ...valid, euros: 0 }, valid])).toEqual([valid])
+    })
+
+    it('loads only the known fields', () => {
+      expect(loadRefuelsFrom([{ ...good, extra: 'x' }])).toEqual([good])
+    })
+  })
+
+  it('keeps the 500 most recent when there are more', () => {
+    const many = Array.from({ length: MAX_REFUELS + 2 }, (_, i) =>
+      refuel(i + 1, i < 2 ? '2026-01-01' : '2026-11-24'),
+    )
+    const loaded = loadRefuelsFrom(many)
+    expect(loaded).toHaveLength(MAX_REFUELS)
+    expect(loaded.some((item) => item.date === '2026-01-01')).toBe(false)
+  })
+})
+
+describe('saveRefuels', () => {
+  const history = [refuel(2, '2026-11-24', 'Furgo'), refuel(1, '2026-11-20')]
+
+  it('saves the history so it is loaded on the next visit (CA15)', () => {
+    const store = new MemoryStore()
+    expect(saveRefuels(store, history)).toBe(true)
+    expect(loadRefuels(store)).toEqual(history)
+  })
+
+  it('saves an empty history', () => {
+    const store = new MemoryStore()
+    saveRefuels(store, history)
+    saveRefuels(store, [])
+    expect(loadRefuels(store)).toEqual([])
+  })
+
+  it('returns false without storage or when saving throws (CA17)', () => {
+    expect(saveRefuels(null, history)).toBe(false)
+    expect(saveRefuels(brokenStore, history)).toBe(false)
+  })
+})
+
+describe('history and feature 002 data are independent (CA18)', () => {
+  it('keeps the cars and the price when the history is damaged', () => {
+    const store = new MemoryStore({
+      [STORAGE_KEYS.ownCars]: JSON.stringify([furgo]),
+      [STORAGE_KEYS.selectedCar]: JSON.stringify({
+        source: 'own',
+        name: 'Furgo',
+      }),
+      [STORAGE_KEYS.price]: '1,579',
+      [STORAGE_KEYS.refuels]: '[{"id": ',
+    })
+    expect(loadRefuels(store)).toEqual([])
+    expect(loadSavedData(store)).toEqual({
+      cars: { ownCars: [furgo], selected: { source: 'own', name: 'Furgo' } },
+      price: '1,579',
+    })
+  })
+
+  it('keeps the history when the cars and the price are damaged', () => {
+    const history = [refuel(1, '2026-11-20')]
+    const store = new MemoryStore({
+      [STORAGE_KEYS.ownCars]: '[{"name": ',
+      [STORAGE_KEYS.selectedCar]: 'x',
+      [STORAGE_KEYS.price]: 'abc',
+      [STORAGE_KEYS.refuels]: JSON.stringify(history),
+    })
+    expect(loadSavedData(store)).toEqual(FIRST_VISIT)
+    expect(loadRefuels(store)).toEqual(history)
+  })
+
+  it('saving the history does not touch the cars or the price', () => {
+    const store = new MemoryStore()
+    saveCarState(store, { ownCars: [furgo], selected: null })
+    savePrice(store, '1,579')
+    saveRefuels(store, [refuel(1, '2026-11-20')])
+    expect(loadSavedData(store)).toEqual({
+      cars: { ownCars: [furgo], selected: null },
+      price: '1,579',
+    })
   })
 })
