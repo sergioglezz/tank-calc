@@ -2,19 +2,31 @@
 
 Calculadora de repostaje para el móvil: te dice cuánto pedir en caja antes de llenar el depósito, sin pasarte.
 
-En muchas gasolineras hay que pagar **antes** de repostar. tank-calc calcula, a partir de la capacidad del depósito, el nivel actual y el precio por litro, cuántos litros faltan, cuánto cuesta llenarlo y qué importe en euros enteros puedes pedir sin pasarte.
+En muchas gasolineras hay que pagar **antes** de repostar. A partir de la capacidad del depósito, el nivel actual y el precio por litro, tank-calc te dice cuántos euros pedir en caja, cuántos litros entran y en qué nivel queda el depósito, en tres modos:
+- **A tope:** llenar el depósito.
+- **Hasta X %:** llegar a un nivel concreto.
+- **Tengo X €:** hasta dónde te llega el dinero y cuánto te sobra.
+
+Todos los resultados son números enteros, redondeados a la baja para no pasarte.
 
 ## Estado y hoja de ruta
 | Feature | Qué incluye | Estado |
 |---|---|---|
-| [001 — Calculadora (lógica)](specs/001-calculadora/spec.md) | Validación con mensajes en español y cálculo en euros, litros y porcentajes enteros de los tres modos: «A tope», «Hasta X %» y «Tengo X €» | 🔄 «A tope» hecho; ampliación en spec |
+| [001 — Calculadora (lógica)](specs/001-calculadora/spec.md) | Validación con mensajes en español y cálculo en euros, litros y porcentajes enteros de los tres modos: «A tope», «Hasta X %» y «Tengo X €» | ✅ Hecha (sin interfaz) |
 | 002 — Coches (lógica) | Lista de modelos con su capacidad, búsqueda, coches propios y recordar el coche y el precio | Pendiente |
 | 003 — Historial (lógica) | Guardar repostajes, último gasto y gasto de los últimos 7 días | Pendiente |
 | 004+ — Interfaz | Pantallas basadas en el mockup de Figma y publicación en una URL | Pendiente |
 
 Todavía **no hay interfaz**: al ejecutar la app solo se ve el título. La lógica está en `src/lib/` y cubierta por tests.
 
-**Ejemplo:** con un depósito de 50 l al 25 % y el precio a 1,579 €/l, para llenarlo puedes pedir **59 €** sin pasarte.
+**Ejemplo:** con un depósito de 50 l al 25 % y el precio a 1,579 €/l:
+
+| Modo | Pide | Entran | El depósito queda al |
+|---|---|---|---|
+| A tope | **59 €** | 37 l | 99 % |
+| Hasta 75 % | **39 €** | 24 l | 74 % |
+| Tengo 30 € | **30 €** | 18 l | 62 % |
+| Tengo 80 € | **59 €** (te sobran 21 €) | 37 l | 99 % |
 
 ## Diseño
 El diseño es un mockup de orientación: las pantallas se ajustarán a la lógica cuando lleguen las specs de interfaz.
@@ -44,5 +56,5 @@ El proyecto sigue *Spec-Driven Development*: cada feature tiene su `spec.md` (qu
 ## Estructura
 - `specs/` — visión, constitución y una carpeta por feature
 - `docs/decisiones.md` — registro de decisiones técnicas
-- `src/lib/` — lógica pura (cálculo, validación y formato) y sus tests
+- `src/lib/` — lógica pura (lectura de números, validación, cálculo de los tres modos y formato) y sus tests
 - `src/` — aplicación React

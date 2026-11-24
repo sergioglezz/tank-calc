@@ -24,4 +24,4 @@ Basadas en el [plan](plan.md). Se hacen en orden y de una en una. Al cerrar cada
 - [x] T13: Pasar `format.ts` a enteros (`formatEuros`, `formatLiters`, `formatPercent`) con sus tests. (verificación: `npm test` | cubre: CA18)
 
 ## Ampliación: cierre
-- [ ] T14: Actualizar D1 en `docs/decisiones.md` con las nuevas unidades, el estado de la feature en `README.md` y el repaso de criterios de la spec ampliada al final del plan. (verificación: revisión de los documentos y `npm run lint`, `npm test` y `npm run build` en verde | cubre: —)
+- [x] T14: Actualizar D1 en `docs/decisiones.md` con las nuevas unidades, el estado de la feature en `README.md` y el repaso de criterios de la spec ampliada al final del plan. (verificación: revisión de los documentos y `npm run lint`, `npm test` y `npm run build` en verde | cubre: —)

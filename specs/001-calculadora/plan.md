@@ -171,3 +171,31 @@ Solo enteros, con `Intl.NumberFormat('es-ES')` y el espacio U+00A0 antes de la u
 **Renombrados:** `src/lib/fillUp.ts` → `calculator.ts` y su test.
 **Modificados:** `validation.ts`, `format.ts` y sus tests; `docs/decisiones.md` (D1 con las nuevas unidades); `README.md`.
 **Dependencias nuevas:** ninguna.
+
+### 10.7 Cierre de la ampliación
+Repaso de los criterios de la spec ampliada contra el código y los tests (113 en verde; lint y build en verde).
+
+| CA | Se cumple | Dónde se comprueba |
+|---|---|---|
+| CA1–CA3 — lectura de números | ✅ | `parseDecimal.test.ts` (sin cambios); `validation.test.ts` (`1.579`, ` 60.0 `, letras, signos, `1.000,5`) |
+| CA4 — rangos de los cinco datos | ✅ | `validation.test.ts`: extremos aceptados y rechazados de capacidad, nivel, precio, objetivo y dinero |
+| CA5 — mensajes vacío / no válido | ✅ | `validation.test.ts` compara el texto exacto de los diez mensajes de la tabla y el `reason` |
+| CA6 — objetivo no mayor que el nivel | ✅ | `validation.test.ts`: objetivo igual, menor, 100 con nivel 100, y su propia regla antes que la comparación |
+| CA7 — tres cifras enteras truncadas | ✅ | `calculator.test.ts`: todos los resultados `ok` comprueban euros, litros, nivel final y sobrante |
+| CA8 — exactitud, sin `NaN` ni `Infinity` | ✅ | `calculator.test.ts`: 50 l al 0 % con 1,14 €/l → 57 € (en coma flotante saldría 56); 28 € a 1,12 €/l → 25 l (saldría 24); extremos máximos y mínimos |
+| CA9–CA10 — «A tope» | ✅ | `calculator.test.ts`: 59 €, 37 l, 99 % |
+| CA11–CA12 — «Hasta X %» | ✅ | `calculator.test.ts`: 39 €, 24 l, 74 %; objetivo 100 % igual que «A tope» |
+| CA13–CA14 — «Tengo X €» | ✅ | `calculator.test.ts`: 30 € → 18 l, 62 % |
+| CA15 — dinero sobrante | ✅ | `calculator.test.ts`: 80 € → 59 €, sobran 21 €; 59 € → sin sobrante |
+| CA16 — depósito lleno | ✅ | `calculator.test.ts`: `status: 'full'` en los tres modos |
+| CA17 — menos de 1 € | ✅ | `calculator.test.ts`: `status: 'lessThanOneEuro'` en los tres modos |
+| CA18 — formato entero | ✅ | `format.test.ts`: `59 €`, `37 l`, `99 %`, y nunca decimales ni redondeo hacia arriba |
+
+#### Cambios durante la implementación
+- **Casos de coma flotante:** los ejemplos de CA8 de la primera versión usaban capacidades con decimales, que ya no son válidas. Se buscaron casos con datos enteros donde la coma flotante falla (57 € y 25 l) y se usan en los tests.
+- **Ejemplo «nunca redondea hacia arriba»:** 10 l al 4 % con 4,999 €/l = 47,99 € → 47 €.
+- **`formatEuros` sustituye a `formatWholeEuros`:** con todos los resultados enteros ya no hace falta un formato con céntimos.
+
+#### Pendiente para otras features
+- **`1.000` se lee como 1:** según CA1 y los casos límite, el punto es separador decimal y los ceros a la derecha no cuentan, así que en «Tengo X €» `1.000` se acepta como 1 €. Es coherente con la spec, pero alguien podría escribirlo pensando en mil euros. Se revisará en la spec de interfaz (por ejemplo, con un teclado sin separador decimal en ese campo).
+- Interfaz, publicación y el test de componente que pide la constitución: specs de interfaz.
