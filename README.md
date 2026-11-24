@@ -19,9 +19,10 @@ Cada repostaje se puede guardar en un historial para saber cuánto gastaste la �
 | [001 — Calculadora (lógica)](specs/001-calculadora/spec.md) | Validación con mensajes en español y cálculo en euros, litros y porcentajes enteros de los tres modos: «A tope», «Hasta X %» y «Tengo X €» | ✅ Hecha (sin interfaz) |
 | [002 — Coches (lógica)](specs/002-coches/spec.md) | Lista de 106 modelos con su capacidad, búsqueda sin tildes ni mayúsculas, hasta 10 coches propios y recordar en el dispositivo los coches, el coche seleccionado y el último precio | ✅ Hecha (sin interfaz) |
 | [003 — Historial (lógica)](specs/003-historial/spec.md) | Guardar y borrar repostajes (fecha, euros, precio, litros y coche), lo que gastaste la última vez, el gasto por día y el total del mes, y recordar en el dispositivo hasta 500 repostajes | ✅ Hecha (sin interfaz) |
-| 004+ — Interfaz | Pantallas basadas en el mockup de Figma y publicación en una URL | Pendiente |
+| [004 — Interfaz de la calculadora y los coches](specs/004-interfaz-calculadora/spec.md) | Calculadora con los tres modos y resultado al momento, errores al salir de cada campo, teclado numérico, elegir, añadir y borrar coches, y accesibilidad básica, mobile-first | ✅ Hecha · publicación en Vercel pendiente |
+| 005 — Interfaz del historial | Guardar repostajes, pantalla «Historial» y publicación final del MVP | Pendiente |
 
-Todavía **no hay interfaz**: al ejecutar la app solo se ve el título. La lógica está en `src/lib/` y cubierta por tests.
+Ya se puede usar la calculadora con tu coche en el móvil. El historial tiene la lógica hecha, pero todavía no tiene pantalla (feature 005). La lógica está en `src/lib/` y cubierta por tests unitarios; la interfaz, por tests de componentes.
 
 **Ejemplo:** con un depósito de 50 l al 25 % y el precio a 1,579 €/l:
 
@@ -33,7 +34,7 @@ Todavía **no hay interfaz**: al ejecutar la app solo se ve el título. La lógi
 | Tengo 80 € | **59 €** (te sobran 21 €) | 37 l | 99 % |
 
 ## Diseño
-El diseño es un mockup de orientación: las pantallas se ajustarán a la lógica cuando lleguen las specs de interfaz.
+El diseño es un mockup de orientación: la interfaz toma de él el estilo, la estructura y la navegación, pero las cifras, los mensajes y los formatos son los de las specs. Las capturas de cada pantalla están en [docs/design/](docs/design/).
 
 - [Prototipo en Figma](https://www.figma.com/proto/hAq16LKqkVc1jL0ss69W8K/Tank-calc?node-id=0-1) — las pantallas previstas de la app.
 - [Diseño en Figma](https://www.figma.com/design/hAq16LKqkVc1jL0ss69W8K/Tank-calc?node-id=0-1)
@@ -52,7 +53,7 @@ npm run format   # formatear el código con Prettier
 ```
 
 ## Stack
-React + TypeScript (Vite), Vitest, oxlint y Prettier. CI con GitHub Actions: lint, tests y build en cada push y PR. Los detalles y su porqué están en la [constitución](specs/00-constitution.md) y en [docs/decisiones.md](docs/decisiones.md).
+React + TypeScript (Vite), Tailwind CSS, Vitest con Testing Library, oxlint y Prettier. CI con GitHub Actions: lint, tests y build en cada push y PR. Los detalles y su porqué están en la [constitución](specs/00-constitution.md) y en [docs/decisiones.md](docs/decisiones.md).
 
 ## Cómo se desarrolla
 El proyecto sigue *Spec-Driven Development*: cada feature tiene su `spec.md` (qué y por qué), su `plan.md` (cómo) y su `tasks.md` (tareas) en `specs/`. Las instrucciones para agentes de IA están en [AGENTS.md](AGENTS.md).
@@ -61,4 +62,5 @@ El proyecto sigue *Spec-Driven Development*: cada feature tiene su `spec.md` (qu
 - `specs/` — visión, constitución y una carpeta por feature
 - `docs/decisiones.md` — registro de decisiones técnicas
 - `src/lib/` — lógica pura y sus tests: lectura de números, validación, cálculo de los tres modos, formato, lista de coches (`cars.json`), búsqueda, coches propios, fechas, historial de repostajes y guardado en el dispositivo
-- `src/` — aplicación React
+- `src/components/` — pantallas y componentes de la interfaz
+- `src/` — aplicación React (`App.tsx`) y sus tests de componentes

@@ -33,3 +33,28 @@ Registro de decisiones importantes: qué se decidió, por qué y qué alternativ
 **Decisión:** la fecha de un repostaje se guarda como texto `AAAA-MM-DD`, sin hora. «Hoy» es el día local del dispositivo (`todayIso`) y las funciones lo reciben como parámetro en vez de leer el reloj.
 **Por qué:** un repostaje es de un día, no de un instante; guardar la hora traería problemas de zonas horarias y cambios de hora. Con ese formato las fechas se ordenan y comparan como texto, y es el mismo que da un campo de fecha del navegador. Recibir «hoy» hace las funciones puras y los tests no dependen del día en que se ejecutan. Los días entre dos fechas se cuentan con `Date.UTC`, que no tiene cambios de hora.
 **Descartado:** guardar marcas de tiempo (`Date.now()`) y añadir una librería de fechas (la constitución pide no añadir dependencias innecesarias).
+
+## D7 — Navegación con estado, sin router (feature 004)
+**Decisión:** `App` guarda en su estado qué pantalla se ve (`'calculator' | 'chooseCar'`).
+**Por qué:** solo hay dos pantallas y ninguna necesita su propia URL. Un `useState` basta y cumple la constitución, que no permite router.
+**Descartado:** React Router y la History API. El botón «Atrás» del móvil para volver de «Elige tu coche» queda fuera de alcance (spec 004).
+
+## D8 — Tailwind v4 con los colores del mockup y la fuente del sistema (feature 004)
+**Decisión:** Tailwind v4 con su plugin de Vite y un único `src/index.css`. Los colores del mockup son variables de `@theme` (`bg-ink`, `text-lime`, `bg-canvas`…) y la fuente es la del sistema (`system-ui`).
+**Por qué:** el plugin de Vite es la instalación oficial de Tailwind v4 y no necesita PostCSS. Con la fuente del sistema no hay dependencia ni petición a un tercero, y el texto aparece al instante. Cada pareja de colores de texto cumple el contraste AA (mínimo 4,97:1).
+**Descartado:** Inter con `@fontsource` (una dependencia más para un cambio pequeño) y Google Fonts (petición a un tercero).
+
+## D9 — `<dialog>` nativo para las hojas inferiores (feature 004)
+**Decisión:** `BottomSheet` usa `<dialog>` con `showModal()`. Lo usan «Añadir mi coche» y la confirmación de borrado.
+**Por qué:** el navegador lleva el foco dentro, lo encierra, cierra con Escape, oscurece el fondo y devuelve el foco al botón que abrió la hoja. Un clic cuyo destino es el propio `<dialog>` es un clic en el fondo y la cierra.
+**Descartado:** una hoja hecha a mano, que obliga a programar todo eso, y una librería de componentes, que la constitución no permite.
+
+## D10 — Campos de texto con `inputMode` y filtro de cifras (feature 004)
+**Decisión:** todos los campos numéricos son `type="text"`. Los enteros llevan `inputMode="numeric"` y descartan cualquier carácter que no sea una cifra (`digitsOnly`); el precio lleva `inputMode="decimal"`.
+**Por qué:** `type="number"` admite `e`, `-` y decimales, y su valor no coincide con lo escrito. Así el teclado del móvil es el correcto y la lógica de la 001 recibe el texto tal cual. El filtro resuelve que «1.000» en «Tengo X €» se leyera como 1 € sin cambiar la 001.
+**Descartado:** cambiar la validación de la 001 para rechazar el separador en los enteros.
+
+## D11 — Tests de componentes con jsdom solo en los `.test.tsx` (feature 004)
+**Decisión:** los tests de componentes usan Testing Library y user-event, y activan jsdom con el comentario `// @vitest-environment jsdom`. `App` recibe el almacenamiento como parámetro y los tests le pasan uno en memoria.
+**Por qué:** los tests de `lib` siguen en Node, más rápidos y sin un `localStorage` real que interfiera con D4. Con el almacenamiento como parámetro se prueban también los fallos al guardar.
+**Descartado:** jsdom para todos los tests y `@testing-library/jest-dom`, porque bastan las consultas por rol y los atributos del DOM.

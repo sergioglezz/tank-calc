@@ -41,7 +41,8 @@ export const MAX_NAME_LENGTH = 40
 const NAME_EMPTY = 'Introduce un nombre para el coche.'
 const NAME_TOO_LONG = 'Escribe un nombre de 40 caracteres como máximo.'
 const NAME_TAKEN = 'Ya tienes un coche con ese nombre.'
-const LIMIT_REACHED =
+/** Shown instead of the form when there are already 10 own cars. */
+export const LIMIT_REACHED =
   'Ya tienes 10 coches guardados. Borra uno para añadir otro.'
 
 const sameName = (a: string, b: string): boolean =>
@@ -95,6 +96,12 @@ export function removeOwnCar(state: CarState, name: string): CarState {
     selected: wasSelected ? null : selected,
   }
 }
+
+/** Whether two references point to the same car (own names ignore case and accents). */
+export const isSameCar = (a: CarRef, b: CarRef): boolean =>
+  a.source === 'catalog'
+    ? b.source === 'catalog' && a.key === b.key
+    : b.source === 'own' && sameName(a.name, b.name)
 
 export const selectCar = (state: CarState, ref: CarRef | null): CarState => ({
   ...state,

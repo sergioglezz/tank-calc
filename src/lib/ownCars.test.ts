@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   addOwnCar,
+  isSameCar,
+  LIMIT_REACHED,
   MAX_OWN_CARS,
   removeOwnCar,
   resolveSelected,
@@ -248,5 +250,41 @@ describe('resolveSelected', () => {
   it('returns null for an own car that no longer exists', () => {
     const state = selectCar(EMPTY, { source: 'own', name: 'Borrado' })
     expect(resolveSelected(state)).toBeNull()
+  })
+})
+
+describe('isSameCar', () => {
+  const corolla = { source: 'catalog', key: 'toyota|corolla|' } as const
+  const mine = { source: 'own', name: 'Mi León' } as const
+
+  it('matches catalog cars by key', () => {
+    expect(
+      isSameCar(corolla, { source: 'catalog', key: 'toyota|corolla|' }),
+    ).toBe(true)
+    expect(
+      isSameCar(corolla, { source: 'catalog', key: 'toyota|yaris|' }),
+    ).toBe(false)
+  })
+
+  it('matches own cars by name, ignoring case and accents', () => {
+    expect(isSameCar(mine, { source: 'own', name: 'MI LEON' })).toBe(true)
+    expect(isSameCar(mine, { source: 'own', name: 'Otro' })).toBe(false)
+  })
+
+  it('never matches an own car with a catalog car', () => {
+    expect(isSameCar(mine, { source: 'catalog', key: 'mi leon' })).toBe(false)
+    expect(isSameCar(corolla, { source: 'own', name: 'toyota|corolla|' })).toBe(
+      false,
+    )
+  })
+})
+
+describe('LIMIT_REACHED', () => {
+  it('is the message addOwnCar gives with 10 own cars', () => {
+    const result = addOwnCar(stateWith(...tenCars()), 'Otro', '50')
+    expect(result).toEqual({ ok: false, errors: { limit: LIMIT_REACHED } })
+    expect(LIMIT_REACHED).toBe(
+      'Ya tienes 10 coches guardados. Borra uno para añadir otro.',
+    )
   })
 })
