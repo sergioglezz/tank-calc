@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { formatEuros, formatLiters, formatPercent } from './format'
+import {
+  formatEuros,
+  formatLiters,
+  formatPercent,
+  formatPriceInput,
+} from './format'
 
 // Number and unit are separated by a non-breaking space.
 const nbsp = ' '
@@ -39,5 +44,16 @@ describe('whole numbers only', () => {
     expect(formatEuros(47.99)).toBe(`47${nbsp}€`)
     expect(formatLiters(24.7)).toBe(`24${nbsp}l`)
     expect(formatPercent(74.9)).toBe(`74${nbsp}%`)
+  })
+})
+
+describe('formatPriceInput', () => {
+  it.each([
+    [1.579, '1,579'],
+    [1.5, '1,5'],
+    [5, '5'],
+    [0.001, '0,001'],
+  ])('formats %d as %s', (price, expected) => {
+    expect(formatPriceInput(price)).toBe(expected)
   })
 })

@@ -14,3 +14,11 @@ export const formatEuros = (amount: number): string => withUnit(amount, '€')
 export const formatLiters = (amount: number): string => withUnit(amount, 'l')
 
 export const formatPercent = (amount: number): string => withUnit(amount, '%')
+
+/**
+ * A validated price written back for the input field: decimal comma and no
+ * trailing zeros (1.579 → "1,579"). Valid prices (0.001–5, up to three
+ * decimals) never use exponent notation in `String`.
+ */
+export const formatPriceInput = (price: number): string =>
+  String(price).replace('.', ',')
