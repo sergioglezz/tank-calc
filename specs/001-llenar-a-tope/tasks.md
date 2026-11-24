@@ -4,7 +4,7 @@ Basadas en el [plan](plan.md). Se hacen en orden y de una en una. Al cerrar cada
 
 ## Setup
 - [x] T1: Crear el proyecto Vite `react-ts` en la raíz del repo, quitar los archivos de ejemplo de la plantilla, dejar `App.tsx` como marcador con el título «tank-calc» y poner `lang="es"` y el título en `index.html`. (verificación: `npm run dev` muestra «tank-calc»; `npm run build` pasa | cubre: —)
-- [ ] T2: Configurar Vitest (entorno `node`), Prettier, y los scripts `test`, `test:watch` y `format`. Rellenar la tabla de comandos de `AGENTS.md`. (verificación: `npm run lint`, `npm test` y `npm run build` pasan | cubre: —)
+- [x] T2: Configurar Vitest (entorno `node`), Prettier, y los scripts `test`, `test:watch` y `format`. Rellenar la tabla de comandos de `AGENTS.md`. (verificación: `npm run lint`, `npm test` y `npm run build` pasan | cubre: —)
 - [ ] T3: Añadir la CI en `.github/workflows/ci.yml` (Node 24: `npm ci`, lint, test y build en cada push y PR). (verificación: tras el push de la rama, el workflow sale en verde en GitHub | cubre: —)
 
 ## Lógica (`src/lib/`)
