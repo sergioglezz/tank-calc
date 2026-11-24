@@ -1,6 +1,6 @@
 # Feature 005: Interfaz del historial
 
-> **Estado:** redactada el 25/11/2026 por el agente, con autorización expresa del autor para escribir la spec, el plan y las tareas e implementarlas sin esperar la aprobación de cada fase (el autor no estaba disponible). Las decisiones que normalmente se habrían preguntado están en «Decisiones tomadas sin consulta», para que el autor las revise.
+> **Estado:** implementada el 25/11/2026; se cumplen los 24 criterios (ver [plan.md](plan.md), sección 8). La redactó el agente con autorización expresa del autor para escribir la spec, el plan y las tareas e implementarlas sin esperar la aprobación de cada fase (el autor no estaba disponible). Las decisiones que normalmente se habrían preguntado están en «Decisiones tomadas sin consulta», para que el autor las revise.
 
 ## Resumen y objetivo
 Segunda y última spec de interfaz del MVP. Se apoya en la lógica de la [feature 003](../003-historial/spec.md) (historial) y en la interfaz de la [feature 004](../004-interfaz-calculadora/spec.md). El usuario puede:

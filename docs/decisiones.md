@@ -58,3 +58,8 @@ Registro de decisiones importantes: qué se decidió, por qué y qué alternativ
 **Decisión:** los tests de componentes usan Testing Library y user-event, y activan jsdom con el comentario `// @vitest-environment jsdom`. `App` recibe el almacenamiento como parámetro y los tests le pasan uno en memoria.
 **Por qué:** los tests de `lib` siguen en Node, más rápidos y sin un `localStorage` real que interfiera con D4. Con el almacenamiento como parámetro se prueban también los fallos al guardar.
 **Descartado:** jsdom para todos los tests y `@testing-library/jest-dom`, porque bastan las consultas por rol y los atributos del DOM.
+
+## D12 — Campo de fecha nativo (feature 005)
+**Decisión:** la fecha del repostaje se elige con `<input type="date">`, con `min` (hoy − 365 días) y `max` (hoy).
+**Por qué:** da el valor como `AAAA-MM-DD`, el mismo formato que guarda el historial (D6), sin conversiones; en el móvil abre el selector de fecha del sistema y no añade dependencias. Si un navegador deja escribir otra cosa, la valida `validateRefuelDate`.
+**Descartado:** tres campos (día, mes y año), que son más trabajo y más errores, y una librería de calendario (constitución).

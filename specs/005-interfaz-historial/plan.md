@@ -65,3 +65,73 @@ Detalles:
 
 ## 6. Decisiones técnicas
 - **D12 — Campo de fecha nativo.** `<input type="date">` con `min` y `max`. Da `AAAA-MM-DD` sin conversiones (D6), abre el selector del móvil y no añade dependencias. Descartados tres campos (día, mes y año), que son más trabajo y más errores, y una librería de calendario (constitución).
+
+## 7. Comprobación manual (T6)
+En el navegador a 360 × 800, sobre `npm run dev`:
+- **Sin desplazamiento horizontal** (`scrollWidth` = 360) y **ningún botón ni campo por debajo de 44 px** en todas las pantallas y hojas nuevas:
+  - la calculadora con el botón y el aviso;
+  - la hoja «Guardar repostaje»;
+  - el historial vacío y con datos (con un coche de 40 caracteres y un repostaje de 1000 €);
+  - la confirmación de borrado;
+  - «Elige tu coche» con la barra.
+- **Barra inferior:** el final de cada pantalla queda por encima de ella. Al guardar, el aviso «Repostaje guardado» quedaba medio tapado por la barra; se corrigió desplazando la página hasta él al aparecer.
+- **Teclado:** al abrir la hoja de guardado, el foco va a «Euros pagados» y, al guardar, vuelve a «Guardar repostaje»; Enter guarda. En el historial vacío, el tabulador lleva a «Ir a la calculadora», con el foco visible.
+- **Campo de fecha:** Chrome muestra el selector en formato `25/11/2026`, con el mínimo en hace 365 días.
+- **Contraste:** las combinaciones nuevas ya estaban calculadas en la 004 y cumplen AA:
+  - texto secundario sobre blanco y sobre gris claro;
+  - rojo de «Borrar» sobre blanco;
+  - blanco sobre verde oscuro en el aviso;
+  - verde oscuro sobre lima en la barra.
+
+## 8. Cierre de la feature
+Repaso de los criterios contra el código y los tests (613 en verde; lint y build en verde).
+
+| CA | Se cumple | Dónde se comprueba |
+|---|---|---|
+| CA1 — barra inferior en todas las pantallas | ✅ | `App.test.tsx`: `aria-current="page"`; «Elige tu coche» marca «Calculadora» |
+| CA2 — foco al navegar y pantalla activa | ✅ | `App.test.tsx`: foco en el título; pulsar la activa no hace nada; desde «Elige tu coche», «Calculadora» vuelve |
+| CA3 — se conservan los datos | ✅ | `App.test.tsx`: nivel y error tras ir al historial y volver |
+| CA4 — la barra no tapa nada | ✅ | Comprobación manual (sección 7) |
+| CA5 — estado del botón «Guardar repostaje» | ✅ | `App.test.tsx`: desactivado con datos incompletos, lleno y menos de 1 €; ausente en la bienvenida |
+| CA6 — hoja rellenada | ✅ | `App.test.tsx`: 59 € en «Tengo 80 €», precio, hoy, `min` y `max` de la fecha y texto del coche |
+| CA7 — datos editables y teclados | ✅ | `App.test.tsx`: euros solo cifras, precio con punto, otro día; `inputMode` numérico |
+| CA8 — errores | ✅ | `App.test.tsx`: al salir del campo, 1001 €, precio vacío y fecha futura a la vez, sin guardar |
+| CA9 — guardar | ✅ | `App.test.tsx`: repostaje guardado con litros y coche, aviso y fila en el historial |
+| CA10 — el aviso desaparece | ✅ | `App.test.tsx`: al cambiar un dato, al cambiar de modo y al reabrir la hoja; `goTo` lo apaga al cambiar de pantalla |
+| CA11 — cancelar | ✅ | `App.test.tsx`; Escape y tocar fuera, por `BottomSheet` (comprobado en la 004) |
+| CA12 — no cambia la calculadora ni el precio recordado | ✅ | `App.test.tsx`: precio de la hoja 1,7 y el recordado sigue en 1,579 |
+| CA13 — historial vacío | ✅ | `App.test.tsx`: textos e «Ir a la calculadora» |
+| CA14 — la última vez | ✅ | `App.test.tsx`: con y sin coche |
+| CA15 — este mes y gasto por día | ✅ | `App.test.tsx`: total del mes sin el repostaje de octubre; dos repostajes el mismo día sumados |
+| CA16 — lista y número | ✅ | `App.test.tsx`: orden, detalles, «4 repostajes» y «1 repostaje» |
+| CA17 — formatos | ✅ | `App.test.tsx`: `25 €`, `16 l`, `1,5 €/l`, `1,579 €/l` y `24/11/2026` |
+| CA18 — confirmación de borrado | ✅ | `App.test.tsx`: texto de la hoja, foco en «Cancelar» y cancelar |
+| CA19 — borrar y actualizar | ✅ | `App.test.tsx`: última vez, mes y número actualizados; uno de dos idénticos; foco en el título |
+| CA20 — borrar el último | ✅ | `App.test.tsx`: pasa al historial vacío |
+| CA21 — recordar entre visitas | ✅ | `App.test.tsx`: datos cargados del almacenamiento, dañados y no legibles |
+| CA22 — aviso si no se puede guardar | ✅ | `App.test.tsx`: al guardar y al borrar con un almacenamiento que falla |
+| CA23 — móvil y accesibilidad | ✅ | Comprobación manual (sección 7) y tests de etiquetas, `aria-invalid` y foco |
+| CA24 — README del MVP | ✅ | `README.md`: MVP completo y Vercel pendiente |
+
+### Revisión de la spec
+- **Detalles técnicos:** la spec describe comportamiento y textos. Las únicas referencias de implementación («hoja desde abajo», «selector de fecha del dispositivo») son de interfaz, no de código.
+- **Criterios comprobables:** todos se comprueban con un test o con una medida concreta (360 px, 44 px, contraste AA). CA4 y CA23 son manuales.
+- **Fuera de alcance:** definido, incluido lo que el mockup muestra y no entra (gráfico de 7 días, guardar desde el historial).
+- **Casos límite que no estaban en la spec:**
+  - **Los euros rellenados siempre son válidos:** el resultado con cifras nunca pasa de 1000 € (200 l × 100 % × 5 €/l), y el precio de la calculadora ya es válido para tener cifras.
+  - **Cambio de día con la app abierta:** «hoy» se lee cada vez que se pinta la pantalla o se abre la hoja, así que el día nuevo se nota sin recargar.
+  - Ninguno de los dos cambia el comportamiento descrito.
+- **Tamaño:** cabe en una feature de 7 tareas; no hace falta dividirla.
+- **Lo que debe revisar el autor:** las seis «Decisiones tomadas sin consulta» de la spec.
+
+### Cambios durante la implementación
+- **CA2 se amplió:** desde «Elige tu coche», «Calculadora» vuelve a la calculadora. Si no, el botón activo de la barra no hacía nada en esa pantalla y solo quedaba «Volver».
+- **`getToday` pasó de T1 a T3,** que es donde `App` lo usa por primera vez, para no dejar un parámetro sin usar.
+- **El aviso «Repostaje guardado» se desplaza a la vista** al aparecer, porque la barra inferior lo tapaba (sección 7).
+- **«Borrar» va debajo de los euros** en cada fila, para que la fecha y los detalles tengan sitio a 360 px.
+- **Un test de la 004** busca el aviso de guardado por su texto, porque ahora hay dos regiones `role="status"` (ese aviso y «Repostaje guardado»).
+- Sin dependencias nuevas.
+
+### Pendiente
+- **T1 de la 004 (autor):** importar el repositorio en Vercel y, después, el enlace en el README, Lighthouse móvil y la prueba en un Android y un iPhone reales.
+- **Revisión por el autor** de las decisiones tomadas sin consulta.

@@ -60,7 +60,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   (verificación: `npm test` y revisión en `npm run dev` | cubre: CA5–CA12, CA22)
 
 ## Cierre
-- [ ] T6: Comprobación manual en el navegador a 360 px de la calculadora con el botón y el aviso, la hoja de guardado, el historial vacío y con datos, y la confirmación de borrado:
+- [x] T6: Comprobación manual en el navegador a 360 px de la calculadora con el botón y el aviso, la hoja de guardado, el historial vacío y con datos, y la confirmación de borrado:
   - sin desplazamiento horizontal;
   - 44 px;
   - la barra no tapa nada;
@@ -68,7 +68,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   - contraste de los colores nuevos.
 
   Corregir lo que falle. (verificación: resultados anotados en el plan | cubre: CA4, CA23)
-- [ ] T7: Cerrar la feature:
+- [x] T7: Cerrar la feature:
   - añadir D12 a `docs/decisiones.md`;
   - actualizar `README.md` (MVP completo, estado de la 005, Vercel pendiente) y el estado de la spec;
   - añadir al final del plan el repaso de los criterios y la revisión de la spec (comprobable, sin detalles técnicos, alcance y casos límite).
