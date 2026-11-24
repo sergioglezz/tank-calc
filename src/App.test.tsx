@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import App from './App'
 import { STORAGE_KEYS, type KeyValueStore } from './lib/storage'
-import { MemoryStore } from './test/memoryStore'
+import { FailingStore, MemoryStore } from './test/memoryStore'
 
 /** A store with one own car, already selected. */
 const storeWithCar = (name = 'Prueba', capacity = 50): MemoryStore =>
@@ -255,6 +255,64 @@ describe('App', () => {
 
       await user.click(screen.getByRole('button', { name: 'Tengo X €' }))
       expect(screen.getByText('Introduce cuántos euros tienes.')).toBeTruthy()
+    })
+  })
+
+  describe('remembered price', () => {
+    const SAVE_FAILED =
+      'No se han podido guardar tus datos en este dispositivo. Se mantendrán hasta que cierres la app.'
+
+    it('fills in the remembered price (CA4)', () => {
+      const store = storeWithCar()
+      store.setItem(STORAGE_KEYS.price, '1.579')
+      renderApp(store)
+      expect(input('Precio por litro (€/l)').value).toBe('1,579')
+    })
+
+    it('starts with an empty price on the first visit (CA4)', () => {
+      renderApp(storeWithCar())
+      expect(input('Precio por litro (€/l)').value).toBe('')
+    })
+
+    it('remembers every valid price for the next visit (CA17)', async () => {
+      const store = storeWithCar()
+      const { user } = renderApp(store)
+      await user.type(input('Precio por litro (€/l)'), '1.50')
+      cleanup()
+
+      renderApp(store)
+      expect(input('Precio por litro (€/l)').value).toBe('1,5')
+    })
+
+    it('does not replace the remembered price with an invalid one (CA17)', async () => {
+      const store = storeWithCar()
+      store.setItem(STORAGE_KEYS.price, '1,579')
+      const { user } = renderApp(store)
+      await user.clear(input('Precio por litro (€/l)'))
+      await user.type(input('Precio por litro (€/l)'), '9')
+      cleanup()
+
+      renderApp(store)
+      expect(input('Precio por litro (€/l)').value).toBe('1,579')
+    })
+
+    it('warns when it cannot save and keeps calculating (CA29)', async () => {
+      const store = new FailingStore({
+        [STORAGE_KEYS.ownCars]: JSON.stringify([
+          { name: 'Prueba', capacity: 50 },
+        ]),
+        [STORAGE_KEYS.selectedCar]: JSON.stringify({
+          source: 'own',
+          name: 'Prueba',
+        }),
+      })
+      const { user } = renderApp(store)
+      expect(screen.queryByText(SAVE_FAILED)).toBeNull()
+
+      await user.type(input('Nivel actual (%)'), '25')
+      await user.type(input('Precio por litro (€/l)'), '1,579')
+      expect(screen.getByRole('status').textContent).toBe(SAVE_FAILED)
+      expect(resultText()).toContain('Pide 59 €')
     })
   })
 })

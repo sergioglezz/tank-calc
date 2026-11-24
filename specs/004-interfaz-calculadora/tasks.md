@@ -56,7 +56,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   - el error del dinero se oculta en «A tope».
 
   (verificación: `npm test` | cubre: CA10–CA14, CA32)
-- [ ] T10: Rellenar el precio recordado y recordar cada precio válido con `savePrice`. Añadir `saveFailed` en `App` y el aviso de que no se ha podido guardar.
+- [x] T10: Rellenar el precio recordado y recordar cada precio válido con `savePrice`. Añadir `saveFailed` en `App` y el aviso de que no se ha podido guardar.
 
   Tests:
   - el precio sigue al volver a montar la app con el mismo almacenamiento;

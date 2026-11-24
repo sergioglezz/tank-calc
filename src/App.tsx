@@ -6,7 +6,8 @@ import {
 } from './components/CalculatorScreen'
 import { ChooseCarScreen } from './components/ChooseCarScreen'
 import { resolveSelected, type CarState } from './lib/ownCars'
-import { loadSavedData, type KeyValueStore } from './lib/storage'
+import { loadSavedData, savePrice, type KeyValueStore } from './lib/storage'
+import { validatePrice } from './lib/validation'
 
 export interface AppProps {
   /** Where data is remembered; null when the browser does not allow it (D4). */
@@ -27,17 +28,24 @@ function App({ storage }: AppProps) {
   const [screen, setScreen] = useState<Screen>('calculator')
   // The focus only moves to a screen title after navigating, not on load.
   const [hasNavigated, setHasNavigated] = useState(false)
+  // Whether the last attempt to remember something failed (CA29).
+  const [saveFailed, setSaveFailed] = useState(false)
 
   const goTo = (next: Screen) => {
     setScreen(next)
     setHasNavigated(true)
   }
 
-  const changeField = (field: Field, value: string) =>
+  const changeField = (field: Field, value: string) => {
     setForm((current) => ({
       ...current,
       fields: { ...current.fields, [field]: value },
     }))
+    // Every valid price is remembered; an invalid one is not a save (CA17).
+    if (field === 'price' && validatePrice(value).ok) {
+      setSaveFailed(!savePrice(storage, value))
+    }
+  }
 
   const touchField = (field: Field) =>
     setForm((current) => ({
@@ -53,6 +61,15 @@ function App({ storage }: AppProps) {
           Reposta con cabeza
         </p>
       </header>
+
+      <div role="status">
+        {saveFailed && (
+          <p className="mt-4 rounded-2xl bg-danger-soft p-4 text-danger">
+            No se han podido guardar tus datos en este dispositivo. Se
+            mantendrán hasta que cierres la app.
+          </p>
+        )}
+      </div>
 
       <main>
         {screen === 'calculator' ? (
