@@ -31,15 +31,14 @@ Si no sabes cuál es la feature activa, pregunta.
 3. Propón un mensaje de commit (en español, imperativo, p. ej. `Añadir cálculo de llenado a tope`). No hagas commit sin confirmación.
 
 ## Comandos del proyecto
-> Marcadores de posición: se completarán cuando exista el proyecto Vite.
-
 | Acción | Comando |
 |---|---|
-| Instalar dependencias | `TODO` |
-| Ejecutar en local | `TODO` |
-| Tests | `TODO` |
-| Lint | `TODO` |
-| Build | `TODO` |
+| Instalar dependencias | `npm install` |
+| Ejecutar en local | `npm run dev` |
+| Tests | `npm test` (en modo vigilancia: `npm run test:watch`) |
+| Lint | `npm run lint` |
+| Build | `npm run build` |
+| Formatear código | `npm run format` |
 
 ## Estructura
 - `specs/` — visión, constitución y una carpeta por feature (`NNN-nombre-feature/`).

@@ -11,7 +11,7 @@ Principios no negociables de tank-calc. Si una spec, plan o tarea contradice est
 | **Tailwind CSS** | Estilos mobile-first sin mantener hojas CSS propias. |
 | **Vitest** | Integrado con Vite; tests de la lógica de cálculo. |
 | **Testing Library** | Tests de componentes desde el punto de vista del usuario. |
-| **ESLint + Prettier** | Convenciones automáticas, no discutibles. |
+| **oxlint + Prettier** | Convenciones automáticas, no discutibles. oxlint es el linter de la plantilla oficial de Vite: una sola dependencia y muy rápido. |
 | **localStorage** | Persistencia local sin backend, como exige la visión. |
 | **Vercel** | Despliegue público automático desde `main`. |
 | **GitHub Actions** | CI: lint, tests y build en cada push y PR. |
