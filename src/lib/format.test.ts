@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  formatDate,
   formatEuros,
   formatLiters,
   formatPercent,
+  formatPrice,
   formatPriceInput,
 } from './format'
 
@@ -55,5 +57,25 @@ describe('formatPriceInput', () => {
     [0.001, '0,001'],
   ])('formats %d as %s', (price, expected) => {
     expect(formatPriceInput(price)).toBe(expected)
+  })
+})
+
+describe('formatPrice', () => {
+  it.each([
+    [1.579, `1,579${nbsp}€/l`],
+    [1.5, `1,5${nbsp}€/l`],
+    [5, `5${nbsp}€/l`],
+    [0.001, `0,001${nbsp}€/l`],
+  ])('formats %d as %s', (price, expected) => {
+    expect(formatPrice(price)).toBe(expected)
+  })
+})
+
+describe('formatDate', () => {
+  it.each([
+    ['2026-11-24', '24/11/2026'],
+    ['2026-01-05', '05/01/2026'],
+  ])('formats %s as %s', (date, expected) => {
+    expect(formatDate(date)).toBe(expected)
   })
 })

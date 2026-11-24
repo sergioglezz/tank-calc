@@ -3,6 +3,7 @@ import {
   calculateFullTank,
   calculateToLevel,
   calculateWithMoney,
+  litersForEuros,
   type TankInput,
 } from './calculator'
 
@@ -133,5 +134,16 @@ describe('calculateWithMoney («Tengo X €»)', () => {
     expect(
       calculateWithMoney({ capacity: 200, level: 0, price: 5 }, 1000),
     ).toEqual(ok(1000, 200, 100))
+  })
+})
+
+describe('litersForEuros', () => {
+  it.each([
+    [30, 1.579, 18],
+    [28, 1.12, 25],
+    [1, 2, 0],
+    [1000, 0.001, 1_000_000],
+  ])('%d € at %d €/l buy %d l', (euros, price, expected) => {
+    expect(litersForEuros(euros, price)).toBe(expected)
   })
 })
