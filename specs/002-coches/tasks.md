@@ -9,8 +9,8 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
 - [x] T2: Añadir `formatPriceInput` a `format.ts` con sus tests (`1,579`, `1,5`, `5`, `0,001`). (verificación: `npm test` | cubre: CA19)
 
 ## Lista de modelos
-- [ ] T3: Activar `resolveJsonModule` en `tsconfig.app.json`, crear `cars.json` con entre 90 y 110 modelos populares en España (sin eléctricos y con variante solo cuando cambie la capacidad) y el test que comprueba los datos. (verificación: `npm test` y `npm run build`; el autor revisa la lista y da su visto bueno | cubre: CA1, CA2, CA3)
-- [ ] T4: Implementar `carCatalog.ts` (`catalogKey`, `catalogLabel`, `catalogCars` ordenada y `findCatalogCar`) con sus tests. (verificación: `npm test` | cubre: CA1, CA4, orden de la lista de CA9)
+- [x] T3: Activar `resolveJsonModule` en `tsconfig.app.json`, crear `cars.json` con entre 90 y 110 modelos populares en España (sin eléctricos y con variante solo cuando cambie la capacidad) y el test que comprueba los datos. (verificación: `npm test` y `npm run build`; el autor revisa la lista y da su visto bueno | cubre: CA1, CA2, CA3)
+- [x] T4: Implementar `carCatalog.ts` (`catalogKey`, `catalogLabel`, `catalogCars` ordenada y `findCatalogCar`) con sus tests. (verificación: `npm test` | cubre: CA1, CA4, orden de la lista de CA9)
 
 ## Coches propios
 - [ ] T5: Implementar en `ownCars.ts` `validateCarName` y `addOwnCar`, con el límite de 10 y todos los errores a la vez, con sus tests. (verificación: `npm test` | cubre: CA11, CA12, CA13, CA14)
