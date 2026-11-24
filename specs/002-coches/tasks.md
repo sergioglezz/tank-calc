@@ -17,7 +17,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
 - [x] T6: Añadir `removeOwnCar`, `selectCar` y `resolveSelected` con sus tests, incluido borrar el coche seleccionado y la inmutabilidad del estado. (verificación: `npm test` | cubre: CA15, CA16)
 
 ## Búsqueda
-- [ ] T7: Implementar `carSearch.ts` (`searchCars`) con sus tests: palabras en cualquier orden, sin tildes ni mayúsculas, texto vacío, sin coincidencias y orden de los resultados. (verificación: `npm test` | cubre: CA5, CA6, CA7, CA8, CA9, CA10)
+- [x] T7: Implementar `carSearch.ts` (`searchCars`) con sus tests: palabras en cualquier orden, sin tildes ni mayúsculas, texto vacío, sin coincidencias y orden de los resultados. (verificación: `npm test` | cubre: CA5, CA6, CA7, CA8, CA9, CA10)
 
 ## Recordar entre visitas
 - [ ] T8: Implementar en `storage.ts` `getBrowserStorage` y `loadSavedData`, con el saneado de coches propios, coche seleccionado y precio, y sus tests con un almacenamiento falso. (verificación: `npm test` | cubre: CA20, CA21, CA22)

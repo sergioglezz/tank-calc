@@ -1,4 +1,9 @@
-import { catalogLabel, findCatalogCar } from './carCatalog'
+import {
+  catalogKey,
+  catalogLabel,
+  findCatalogCar,
+  type CatalogCar,
+} from './carCatalog'
 import { normalizeText } from './text'
 import { validateCapacity, type FieldResult } from './validation'
 
@@ -96,6 +101,18 @@ export const selectCar = (state: CarState, ref: CarRef | null): CarState => ({
   selected: ref,
 })
 
+export const ownCarOption = (car: OwnCar): CarOption => ({
+  ref: { source: 'own', name: car.name },
+  label: car.name,
+  capacity: car.capacity,
+})
+
+export const catalogCarOption = (car: CatalogCar): CarOption => ({
+  ref: { source: 'catalog', key: catalogKey(car) },
+  label: catalogLabel(car),
+  capacity: car.capacity,
+})
+
 /** The selected car with its capacity, or null if none or it no longer exists. */
 export function resolveSelected({
   ownCars,
@@ -104,16 +121,8 @@ export function resolveSelected({
   if (selected === null) return null
   if (selected.source === 'catalog') {
     const car = findCatalogCar(selected.key)
-    return car
-      ? { ref: selected, label: catalogLabel(car), capacity: car.capacity }
-      : null
+    return car ? catalogCarOption(car) : null
   }
   const car = ownCars.find((own) => sameName(own.name, selected.name))
-  return car
-    ? {
-        ref: { source: 'own', name: car.name },
-        label: car.name,
-        capacity: car.capacity,
-      }
-    : null
+  return car ? ownCarOption(car) : null
 }
