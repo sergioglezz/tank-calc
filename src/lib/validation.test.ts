@@ -3,7 +3,9 @@ import {
   validateCapacity,
   validateLevel,
   validateMoney,
+  validatePaidEuros,
   validatePrice,
+  validateRefuelDate,
   validateTargetLevel,
 } from './validation'
 
@@ -19,6 +21,10 @@ const TARGET_INVALID = 'Escribe un porcentaje entero entre 1 y 100.'
 const TARGET_NOT_ABOVE = 'El objetivo debe ser mayor que el nivel actual.'
 const MONEY_EMPTY = 'Introduce cuántos euros tienes.'
 const MONEY_INVALID = 'Escribe un importe entero entre 1 y 1000 €.'
+const PAID_EMPTY = 'Introduce el importe pagado.'
+const DATE_INVALID = 'Introduce una fecha válida.'
+const DATE_FUTURE = 'La fecha no puede ser posterior a hoy.'
+const DATE_TOO_OLD = 'La fecha no puede ser de hace más de un año.'
 
 describe('validateCapacity', () => {
   it.each([
@@ -188,4 +194,90 @@ describe('validateMoney', () => {
       })
     },
   )
+})
+
+describe('validatePaidEuros', () => {
+  it.each([
+    ['1', 1],
+    ['59', 59],
+    ['1000', 1000],
+    [' 30 ', 30],
+    ['20,0', 20],
+  ])('accepts %s', (text, value) => {
+    expect(validatePaidEuros(text)).toEqual({ ok: true, value })
+  })
+
+  it.each(['', '   '])('reports empty input %j', (text) => {
+    expect(validatePaidEuros(text)).toEqual({
+      ok: false,
+      reason: 'empty',
+      message: PAID_EMPTY,
+    })
+  })
+
+  it.each(['0', '1001', '20,5', '47,83', '-5', '1.000,5', 'veinte'])(
+    'rejects %s with the message of feature 001',
+    (text) => {
+      expect(validatePaidEuros(text)).toEqual({
+        ok: false,
+        reason: 'invalid',
+        message: MONEY_INVALID,
+      })
+    },
+  )
+})
+
+describe('validateRefuelDate', () => {
+  const today = '2026-11-24'
+
+  it.each(['', '   '])('uses today for an empty date %j', (text) => {
+    expect(validateRefuelDate(text, today)).toEqual({ ok: true, value: today })
+  })
+
+  it.each([
+    ['2026-11-24', '2026-11-24'],
+    ['2026-11-23', '2026-11-23'],
+    ['2025-11-24', '2025-11-24'],
+    [' 2026-01-05 ', '2026-01-05'],
+  ])('accepts %j', (text, value) => {
+    expect(validateRefuelDate(text, today)).toEqual({ ok: true, value })
+  })
+
+  it.each(['2026-02-30', '2026-13-01', '2026-1-5', '24/11/2026', 'ayer'])(
+    'rejects the malformed or missing date %j',
+    (text) => {
+      expect(validateRefuelDate(text, today)).toEqual({
+        ok: false,
+        reason: 'invalid',
+        message: DATE_INVALID,
+      })
+    },
+  )
+
+  it.each(['2026-11-25', '2027-01-01'])(
+    'rejects the future date %s',
+    (text) => {
+      expect(validateRefuelDate(text, today)).toEqual({
+        ok: false,
+        reason: 'invalid',
+        message: DATE_FUTURE,
+      })
+    },
+  )
+
+  it.each(['2025-11-23', '2020-01-01'])(
+    'rejects %s, more than 365 days ago',
+    (text) => {
+      expect(validateRefuelDate(text, today)).toEqual({
+        ok: false,
+        reason: 'invalid',
+        message: DATE_TOO_OLD,
+      })
+    },
+  )
+
+  it('counts 365 days back across a leap day', () => {
+    expect(validateRefuelDate('2028-03-01', '2029-03-01').ok).toBe(true)
+    expect(validateRefuelDate('2028-02-29', '2029-03-01').ok).toBe(false)
+  })
 })

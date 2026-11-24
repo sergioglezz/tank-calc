@@ -1,5 +1,8 @@
+import { litersForEuros } from './calculator'
+import { isValidIsoDate } from './dates'
 import { formatPriceInput } from './format'
 import {
+  MAX_NAME_LENGTH,
   MAX_OWN_CARS,
   resolveSelected,
   validateCarName,
@@ -7,7 +10,17 @@ import {
   type CarState,
   type OwnCar,
 } from './ownCars'
-import { validateCapacity, validatePrice } from './validation'
+import {
+  MAX_REFUELS,
+  sortRefuels,
+  type Refuel,
+  type RefuelHistory,
+} from './refuels'
+import {
+  validateCapacity,
+  validatePaidEuros,
+  validatePrice,
+} from './validation'
 
 /** The part of `localStorage` this app uses; tests pass a fake one (D4). */
 export type KeyValueStore = Pick<Storage, 'getItem' | 'setItem'>
@@ -23,6 +36,7 @@ export const STORAGE_KEYS = {
   ownCars: 'tank-calc:own-cars',
   selectedCar: 'tank-calc:selected-car',
   price: 'tank-calc:price',
+  refuels: 'tank-calc:refuels',
 } as const
 
 /** `localStorage`, or null when the browser does not allow using it. */
@@ -139,3 +153,49 @@ export function savePrice(
   if (!price.ok) return true
   return write(storage, [[STORAGE_KEYS.price, formatPriceInput(price.value)]])
 }
+
+/** A car name as saved by `addRefuel`: 1–40 characters, already trimmed. */
+const isSavedCarName = (car: unknown): car is string | null =>
+  car === null ||
+  (typeof car === 'string' &&
+    car === car.trim() &&
+    car !== '' &&
+    [...car].length <= MAX_NAME_LENGTH)
+
+/** A saved refuel that follows the rules, or null. Date limits do not apply. */
+function toRefuel(item: unknown): Refuel | null {
+  if (!isRecord(item)) return null
+  const { id, date, euros, price, liters, car } = item
+  if (typeof id !== 'number' || !Number.isInteger(id) || id < 1) return null
+  if (typeof date !== 'string' || !isValidIsoDate(date)) return null
+  if (typeof euros !== 'number' || typeof price !== 'number') return null
+  if (!validatePaidEuros(String(euros)).ok) return null
+  if (!validatePrice(String(price)).ok) return null
+  if (liters !== litersForEuros(euros, price)) return null
+  if (!isSavedCarName(car)) return null
+  return { id, date, euros, price, liters, car }
+}
+
+/** Keeps the valid refuels, the first of each id, and the 500 most recent. */
+function toRefuels(value: unknown): RefuelHistory {
+  if (!Array.isArray(value)) return []
+  const refuels: Refuel[] = []
+  const ids = new Set<number>()
+  for (const item of value) {
+    const refuel = toRefuel(item)
+    if (refuel === null || ids.has(refuel.id)) continue
+    ids.add(refuel.id)
+    refuels.push(refuel)
+  }
+  return sortRefuels(refuels).slice(0, MAX_REFUELS)
+}
+
+/** Never throws: anything missing or unreadable gives an empty history. */
+export const loadRefuels = (storage: KeyValueStore | null): RefuelHistory =>
+  toRefuels(parseJson(read(storage, STORAGE_KEYS.refuels)))
+
+/** Saves the history; false if it could not be saved. */
+export const saveRefuels = (
+  storage: KeyValueStore | null,
+  history: RefuelHistory,
+): boolean => write(storage, [[STORAGE_KEYS.refuels, JSON.stringify(history)]])

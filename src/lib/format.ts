@@ -1,3 +1,5 @@
+import type { IsoDate } from './dates'
+
 // All results are whole numbers (CA18). Intl separates the number and the
 // unit with a non-breaking space; the same space is used for liters and %.
 const wholeNumber = new Intl.NumberFormat('es-ES', {
@@ -22,3 +24,13 @@ export const formatPercent = (amount: number): string => withUnit(amount, '%')
  */
 export const formatPriceInput = (price: number): string =>
   String(price).replace('.', ',')
+
+/** A price per liter for display: 1.579 → "1,579 €/l". */
+export const formatPrice = (price: number): string =>
+  `${formatPriceInput(price)}${NBSP}€/l`
+
+/** A calendar day for display: "2026-11-24" → "24/11/2026". */
+export function formatDate(date: IsoDate): string {
+  const [year, month, day] = date.split('-')
+  return `${day}/${month}/${year}`
+}

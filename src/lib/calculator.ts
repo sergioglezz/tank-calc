@@ -28,6 +28,10 @@ export type CalculationResult =
  */
 const toThousandths = (price: number): number => Math.round(price * 1000)
 
+/** Whole liters that `euros` whole euros buy at `price` €/l, truncated. */
+export const litersForEuros = (euros: number, price: number): number =>
+  Math.floor((euros * 1000) / toThousandths(price))
+
 /** Whole euros it costs to go from the current level to `target`, truncated. */
 function costToReach({ capacity, level, price }: TankInput, target: number) {
   return Math.floor(
@@ -42,13 +46,12 @@ function resultForEuros(
 ): CalculationResult {
   if (euros === 0) return { status: 'lessThanOneEuro' }
 
-  const priceThousandths = toThousandths(price)
   return {
     status: 'ok',
     euros,
-    liters: Math.floor((euros * 1000) / priceThousandths),
+    liters: litersForEuros(euros, price),
     finalLevel:
-      level + Math.floor((euros * 100_000) / (priceThousandths * capacity)),
+      level + Math.floor((euros * 100_000) / (toThousandths(price) * capacity)),
     leftoverEuros,
   }
 }
