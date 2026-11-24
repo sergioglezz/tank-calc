@@ -10,7 +10,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
 - [x] T3: Instalar `@testing-library/react`, `@testing-library/dom`, `@testing-library/user-event` y `jsdom`. Crear `src/test/setup.ts`, que limpia el DOM y añade la versión mínima de `<dialog>` solo si jsdom no la trae, y añadir `test.setupFiles` a `vite.config.ts`. Hacer que `App` reciba `storage` desde `main.tsx` y crear `src/App.test.tsx` con un primer test que monta la app con un almacenamiento falso. Los tests de `lib` siguen en Node. (verificación: `npm test` | cubre: base de los tests de componentes)
 
 ## Lógica de la interfaz
-- [ ] T4: Añadir `digitsOnly` a `text.ts`, e `isSameCar` y la exportación del mensaje del límite a `ownCars.ts`, con sus tests. (verificación: `npm test` | cubre: CA16, CA19, CA27)
+- [x] T4: Añadir `digitsOnly` a `text.ts`, e `isSameCar` y la exportación del mensaje del límite a `ownCars.ts`, con sus tests. (verificación: `npm test` | cubre: CA16, CA19, CA27)
 - [ ] T5: Implementar `calculatorForm.ts` (`evaluateCalculator`) con sus tests:
   - los tres modos con los ejemplos de la spec;
   - `null` con datos vacíos o no válidos;
