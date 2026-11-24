@@ -35,6 +35,12 @@ export type AddRefuelResult =
   | { ok: true; history: RefuelHistory }
   | { ok: false; errors: { euros?: string; price?: string; date?: string } }
 
+export interface DailySpending {
+  date: IsoDate
+  /** Whole euros spent that day. */
+  euros: number
+}
+
 export const MAX_REFUELS = 500
 
 const newestFirst = (a: Refuel, b: Refuel): number => {
@@ -81,4 +87,33 @@ export function addRefuel(
   }
   const kept = sortRefuels(history).slice(0, MAX_REFUELS - 1)
   return { ok: true, history: sortRefuels([...kept, refuel]) }
+}
+
+/** Removes only the refuel with that id; an unknown id changes nothing. */
+export const removeRefuel = (
+  history: RefuelHistory,
+  id: number,
+): RefuelHistory => history.filter((refuel) => refuel.id !== id)
+
+/** The most recent refuel, or null with an empty history. */
+export const lastRefuel = (history: RefuelHistory): Refuel | null =>
+  history[0] ?? null
+
+/** Euros spent on each day with refuels, most recent day first. */
+export function dailySpending(history: RefuelHistory): DailySpending[] {
+  const days: DailySpending[] = []
+  for (const { date, euros } of history) {
+    const last = days.at(-1)
+    if (last?.date === date) last.euros += euros
+    else days.push({ date, euros })
+  }
+  return days
+}
+
+/** Euros spent from the 1st of the current month up to today. */
+export function monthTotal(history: RefuelHistory, today: IsoDate): number {
+  const month = today.slice(0, 'AAAA-MM'.length)
+  return history
+    .filter(({ date }) => date.startsWith(month) && date <= today)
+    .reduce((total, { euros }) => total + euros, 0)
 }

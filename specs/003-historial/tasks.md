@@ -14,7 +14,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
 
 ## Historial
 - [x] T5: Implementar en `refuels.ts` `sortRefuels` y `addRefuel`, con el coche seleccionado, todos los errores a la vez y el límite de 500, con sus tests. Incluye el test de que las etiquetas de la lista de modelos tienen como mucho 40 caracteres. (verificación: `npm test` | cubre: CA1, CA3, CA4, CA5, CA6, CA7, CA8, CA10)
-- [ ] T6: Añadir `removeRefuel`, `lastRefuel`, `dailySpending` y `monthTotal` con sus tests: borrar uno de dos idénticos, historial vacío, varios repostajes el mismo día, cambio de mes, fecha posterior a hoy e inmutabilidad. (verificación: `npm test` | cubre: CA9, CA11, CA12, CA13)
+- [x] T6: Añadir `removeRefuel`, `lastRefuel`, `dailySpending` y `monthTotal` con sus tests: borrar uno de dos idénticos, historial vacío, varios repostajes el mismo día, cambio de mes, fecha posterior a hoy e inmutabilidad. (verificación: `npm test` | cubre: CA9, CA11, CA12, CA13)
 
 ## Recordar entre visitas
 - [ ] T7: Añadir a `storage.ts` `loadRefuels` y `saveRefuels` con la clave `tank-calc:refuels` y sus tests con el almacenamiento falso: guardar y volver a cargar, primera visita, fallos al leer y al guardar, cada regla de descarte, más de 500, fechas antiguas o futuras que se conservan e independencia de los datos de la 002. (verificación: `npm test` | cubre: CA15, CA16, CA17, CA18)

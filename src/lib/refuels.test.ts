@@ -3,7 +3,11 @@ import { catalogCars, catalogKey, catalogLabel } from './carCatalog'
 import { MAX_NAME_LENGTH, removeOwnCar, type CarState } from './ownCars'
 import {
   addRefuel,
+  dailySpending,
+  lastRefuel,
   MAX_REFUELS,
+  monthTotal,
+  removeRefuel,
   sortRefuels,
   type AddRefuelResult,
   type Refuel,
@@ -272,5 +276,110 @@ describe('sortRefuels', () => {
       refuel(2, '2026-11-20'),
     ])
     expect(sortRefuels(history).map((item) => item.id)).toEqual([2, 1, 3])
+  })
+})
+
+const spent = (id: number, date: string, euros: number): Refuel => ({
+  ...refuel(id, date),
+  euros,
+})
+
+describe('removeRefuel (CA9)', () => {
+  it('removes only the chosen one of two identical refuels', () => {
+    const history = frozen([refuel(2, '2026-11-20'), refuel(1, '2026-11-20')])
+    expect(removeRefuel(history, 1)).toEqual([refuel(2, '2026-11-20')])
+    expect(history).toHaveLength(2)
+  })
+
+  it('changes nothing with an unknown id', () => {
+    const history = frozen([refuel(1, '2026-11-20')])
+    expect(removeRefuel(history, 7)).toEqual(history)
+  })
+
+  it('leaves an empty history after removing the last one', () => {
+    const history = removeRefuel(frozen([refuel(1, '2026-11-20')]), 1)
+    expect(history).toEqual([])
+    expect(lastRefuel(history)).toBeNull()
+    expect(dailySpending(history)).toEqual([])
+    expect(monthTotal(history, TODAY)).toBe(0)
+  })
+
+  it('lets the next refuel reuse the id of the last one removed', () => {
+    const history = removeRefuel(add(add([])), 2)
+    expect(add(history).map((item) => item.id)).toEqual([2, 1])
+  })
+})
+
+describe('lastRefuel (CA11)', () => {
+  it('is null with an empty history', () => {
+    expect(lastRefuel([])).toBeNull()
+  })
+
+  it('is the most recent date, the last saved that day', () => {
+    let history = add([], { dateText: '2026-11-24', eurosText: '40' })
+    history = add(history, { dateText: '2026-11-24', eurosText: '20' })
+    history = add(history, { dateText: '2026-11-10', eurosText: '60' })
+    expect(lastRefuel(history)).toEqual({
+      id: 2,
+      date: '2026-11-24',
+      euros: 20,
+      price: 1.579,
+      liters: 12,
+      car: null,
+    })
+  })
+})
+
+describe('dailySpending (CA12)', () => {
+  it('adds up the refuels of each day, most recent day first', () => {
+    const history = frozen([
+      spent(4, '2026-11-24', 20),
+      spent(3, '2026-11-24', 35),
+      spent(2, '2026-11-10', 60),
+      spent(1, '2026-10-31', 45),
+    ])
+    expect(dailySpending(history)).toEqual([
+      { date: '2026-11-24', euros: 55 },
+      { date: '2026-11-10', euros: 60 },
+      { date: '2026-10-31', euros: 45 },
+    ])
+  })
+
+  it('is empty with an empty history', () => {
+    expect(dailySpending([])).toEqual([])
+  })
+
+  it('does not modify the history', () => {
+    const history = frozen([
+      spent(2, '2026-11-24', 20),
+      spent(1, '2026-11-24', 30),
+    ])
+    dailySpending(history)
+    expect(history.map((item) => item.euros)).toEqual([20, 30])
+  })
+})
+
+describe('monthTotal (CA13)', () => {
+  const history = frozen([
+    spent(6, '2026-11-30', 70),
+    spent(5, '2026-11-24', 20),
+    spent(4, '2026-11-10', 60),
+    spent(3, '2026-11-01', 15),
+    spent(2, '2026-10-31', 45),
+    spent(1, '2025-11-15', 50),
+  ])
+
+  // Leaves out a date after today, the previous month and another year.
+  it('adds up the euros from the 1st of the month to today', () => {
+    expect(monthTotal(history, TODAY)).toBe(20 + 60 + 15)
+  })
+
+  it('only counts the 1st on the 1st of the month', () => {
+    expect(monthTotal(history, '2026-11-01')).toBe(15)
+  })
+
+  it('is 0 without refuels this month', () => {
+    expect(monthTotal(history, '2026-12-05')).toBe(0)
+    expect(monthTotal([], TODAY)).toBe(0)
   })
 })
