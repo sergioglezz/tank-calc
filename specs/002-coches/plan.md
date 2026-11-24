@@ -117,3 +117,45 @@ Cada dato se guarda en una clave propia, para que uno dañado no afecte a los de
 Se registran en [docs/decisiones.md](../../docs/decisiones.md):
 - **D3 — Identificar los coches por su nombre normalizado.** Los de la lista, por `marca|modelo|variante`; los propios, por su nombre, que es único. Así no hace falta mantener identificadores a mano en el JSON ni generar identificadores aleatorios. Si un modelo cambia de nombre en una versión futura de la lista, el coche seleccionado deja de existir y se aplica CA21. Se descarta un campo `id` en el JSON, porque es más trabajo de mantener y propenso a errores.
 - **D4 — El almacenamiento como parámetro y una clave por dato.** `storage.ts` recibe el almacenamiento en lugar de usar `localStorage` directamente. Así se prueba en Node con un objeto en memoria, sin jsdom, y se pueden simular los fallos. Se descarta jsdom en esta feature, porque sería una dependencia que la interfaz todavía no usa. Se usa una clave por dato para que uno dañado no arrastre a los demás.
+
+## 7. Cierre de la feature
+Repaso de los criterios de la [spec](spec.md) contra el código y los tests (343 en verde; lint y build en verde).
+
+| CA | Se cumple | Dónde se comprueba |
+|---|---|---|
+| CA1 — campos de cada entrada y variante solo si cambia la capacidad | ✅ | `carCatalog.test.ts`: campos permitidos en cada entrada; un modelo con varias entradas tiene capacidades distintas y uno con una sola no lleva variante |
+| CA2 — 90–110 entradas válidas y sin repetir | ✅ | `carCatalog.test.ts`: 106 entradas, capacidad válida según la 001, marca y modelo no vacíos, claves únicas |
+| CA3 — fichas públicas y visto bueno del autor | ✅ | Revisión del autor antes del commit de T3–T4; se añadió la regla de la capacidad más pequeña |
+| CA4 — «Marca Modelo (variante)» | ✅ | `carCatalog.test.ts`: `catalogLabel` con y sin variante |
+| CA5 — busca en la lista y en los propios | ✅ | `carSearch.test.ts`: por marca y modelo, por variante y por nombre propio |
+| CA6 — cada palabra, en cualquier orden | ✅ | `carSearch.test.ts`: «corolla toy», partes de palabras, «toyota clio» sin resultados |
+| CA7 — sin mayúsculas, tildes ni diéresis | ✅ | `text.test.ts`; `carSearch.test.ts`: «citroen c4», «LEON», «mama» |
+| CA8 — texto vacío, todos | ✅ | `carSearch.test.ts`: `''` y `'   '` |
+| CA9 — propios primero y orden alfabético | ✅ | `carSearch.test.ts` (propios por nombre y después la lista); `carCatalog.test.ts` (orden de la lista, sin variante primero) |
+| CA10 — sin coincidencias, vacío | ✅ | `carSearch.test.ts`: «zzz» |
+| CA11 — nombre y capacidad con las reglas de la 001 | ✅ | `ownCars.test.ts`: capacidades vacía, 40,5, 0 y 201 con los mensajes de la 001 |
+| CA12 — 1–40 caracteres sin repetir | ✅ | `ownCars.test.ts`: 40 y 41 caracteres, espacios en los extremos, «ñ» y emojis, «Mi león» / «MI LEON» |
+| CA13 — mensajes | ✅ | `ownCars.test.ts` compara el texto exacto de cada mensaje y devuelve los dos errores a la vez |
+| CA14 — máximo 10 | ✅ | `ownCars.test.ts`: el décimo sí; el undécimo, solo el error de límite |
+| CA15 — borrar y quitar la selección | ✅ | `ownCars.test.ts`: el seleccionado, otro, el último y uno que no existe |
+| CA16 — la lista no se toca | ✅ | Ninguna función modifica `catalogCars`; `ownCars.test.ts`: borrar un propio mantiene seleccionado un coche de la lista |
+| CA17 — se conserva entre visitas | ✅ | `storage.test.ts`: guardar y volver a cargar coches, selección y precio |
+| CA18 — un precio no válido no sustituye al anterior | ✅ | `storage.test.ts`: vacío, letras, 0, 5,5 y 1,5799 |
+| CA19 — precio con coma y sin ceros a la derecha | ✅ | `format.test.ts`; `storage.test.ts`: «1.579» → «1,579», «1,50» → «1,5», extremos |
+| CA20 — primera visita vacía | ✅ | `storage.test.ts` |
+| CA21 — datos dañados o inexistentes | ✅ | `storage.test.ts`: sin almacenamiento, lecturas que fallan, JSON dañado, un dato dañado no afecta a los demás, coche seleccionado que ya no existe |
+| CA22 — saneado de coches propios | ✅ | `storage.test.ts`: tipos incorrectos, nombres y capacidades no válidos, repetidos y más de 10 |
+| CA23 — aviso si no se puede guardar | ✅ | `storage.test.ts`: `false` sin almacenamiento y cuando `setItem` falla |
+
+### Cambios durante la implementación
+- **Lista de modelos:** 106 entradas de 23 marcas. Cuando la capacidad cambia según la generación o la versión y no se distingue con una variante, se usa la más pequeña, para no pasarse nunca. Se añadió a CA3 de la spec. Los modelos de Mazda se escriben «2» y «3» («Mazda 2»). Škoda y Citroën se encuentran también sin tilde ni diéresis.
+- **`FieldResult` genérico:** `FieldResult<T = number>` en `validation.ts`, para que `validateCarName` devuelva el nombre. Lo que ya lo usaba no cambia.
+- **`ownCarOption` y `catalogCarOption`:** se exportan desde `ownCars.ts`, porque `resolveSelected` y `searchCars` construyen las mismas opciones.
+- **`selectCar` admite `null`:** para quitar la selección.
+- **`CarState.ownCars` es de solo lectura (`readonly`):** así TypeScript impide modificar el estado recibido.
+- **Búsqueda:** se busca en el texto de la etiqueta («Renault Clio (híbrido)»), que ya contiene marca, modelo y variante.
+- **Carga del coche seleccionado:** se comprueba con `resolveSelected`. Para un coche propio se devuelve el nombre tal como está guardado («FURGO» → «Furgo»).
+
+### Pendiente para otras features
+- **Interfaz (004+):** cuándo se guarda el precio, si un coche recién añadido queda seleccionado, cómo se avisa de que no se ha podido guardar y cómo se muestra el resultado de la búsqueda.
+- **Lista de modelos:** revisar las capacidades si aparecen generaciones nuevas o se detecta algún error.

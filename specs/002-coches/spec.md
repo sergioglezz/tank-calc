@@ -1,6 +1,6 @@
 # Feature 002: Coches (lógica)
 
-> **Estado:** aprobada el 24/11/2026. Cómo se implementa: [plan.md](plan.md).
+> **Estado:** cerrada el 24/11/2026; se cumplen los 23 criterios de aceptación (ver [plan.md](plan.md), sección 7). Durante la implementación se añadió a CA3 la regla de la capacidad más pequeña cuando hay dudas.
 
 ## Resumen y objetivo
 Toda la lógica de «Mi coche», sin interfaz. La app sabe:
@@ -24,7 +24,7 @@ Objetivo: que el usuario no tenga que saber de memoria la capacidad de su depós
 **Lista de modelos incluida en la app**
 - CA1: Cada entrada de la lista tiene **marca**, **modelo**, una **variante** opcional y una **capacidad** en litros. La variante solo aparece cuando un mismo modelo tiene depósitos de distinta capacidad según la motorización (p. ej. «híbrido», «diésel»).
 - CA2: La lista tiene entre 90 y 110 entradas, todas con capacidad entera entre 1 y 200 l (la regla de la feature 001), marca y modelo no vacíos, y sin dos entradas con la misma marca, modelo y variante.
-- CA3: Las capacidades salen de fichas técnicas públicas, y el autor ha revisado la lista y le ha dado el visto bueno antes de cerrar la feature.
+- CA3: Las capacidades salen de fichas técnicas públicas, y el autor ha revisado la lista y le ha dado el visto bueno antes de cerrar la feature. Si un modelo tiene distintas capacidades según la generación o la versión y no se distinguen con una variante, se usa **la más pequeña**: así la app puede calcular algo menos de lo que cabe, pero nunca pide más.
 - CA4: Un coche de la lista se muestra como «Marca Modelo» o, si tiene variante, «Marca Modelo (variante)». Ejemplo: «Toyota Corolla (híbrido)».
 
 **Búsqueda**

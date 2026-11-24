@@ -24,4 +24,4 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
 - [x] T9: Añadir `saveCarState` y `savePrice` con sus tests: guardar y volver a cargar, precio no válido que no sustituye al anterior y fallos al guardar. (verificación: `npm test` | cubre: CA17, CA18, CA19, CA23)
 
 ## Cierre
-- [ ] T10: Añadir D3 y D4 a `docs/decisiones.md`, actualizar el estado de la feature 002 en `README.md` y en la spec, y añadir al final del plan el repaso de los criterios de la spec. (verificación: revisión de los documentos y `npm run lint`, `npm test` y `npm run build` en verde | cubre: —)
+- [x] T10: Añadir D3 y D4 a `docs/decisiones.md`, actualizar el estado de la feature 002 en `README.md` y en la spec, y añadir al final del plan el repaso de los criterios de la spec. (verificación: revisión de los documentos y `npm run lint`, `npm test` y `npm run build` en verde | cubre: —)

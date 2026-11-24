@@ -9,11 +9,13 @@ En muchas gasolineras hay que pagar **antes** de repostar. A partir de la capaci
 
 Todos los resultados son números enteros, redondeados a la baja para no pasarte.
 
+No hace falta saber la capacidad del depósito: puedes buscar tu coche en una lista de unos 100 modelos populares en España o añadir el tuyo con su nombre y capacidad. La app recuerda tu coche y el último precio en tu dispositivo.
+
 ## Estado y hoja de ruta
 | Feature | Qué incluye | Estado |
 |---|---|---|
 | [001 — Calculadora (lógica)](specs/001-calculadora/spec.md) | Validación con mensajes en español y cálculo en euros, litros y porcentajes enteros de los tres modos: «A tope», «Hasta X %» y «Tengo X €» | ✅ Hecha (sin interfaz) |
-| 002 — Coches (lógica) | Lista de modelos con su capacidad, búsqueda, coches propios y recordar el coche y el precio | Pendiente |
+| [002 — Coches (lógica)](specs/002-coches/spec.md) | Lista de 106 modelos con su capacidad, búsqueda sin tildes ni mayúsculas, hasta 10 coches propios y recordar en el dispositivo los coches, el coche seleccionado y el último precio | ✅ Hecha (sin interfaz) |
 | 003 — Historial (lógica) | Guardar repostajes, último gasto y gasto de los últimos 7 días | Pendiente |
 | 004+ — Interfaz | Pantallas basadas en el mockup de Figma y publicación en una URL | Pendiente |
 
@@ -56,5 +58,5 @@ El proyecto sigue *Spec-Driven Development*: cada feature tiene su `spec.md` (qu
 ## Estructura
 - `specs/` — visión, constitución y una carpeta por feature
 - `docs/decisiones.md` — registro de decisiones técnicas
-- `src/lib/` — lógica pura (lectura de números, validación, cálculo de los tres modos y formato) y sus tests
+- `src/lib/` — lógica pura y sus tests: lectura de números, validación, cálculo de los tres modos, formato, lista de coches (`cars.json`), búsqueda, coches propios y guardado en el dispositivo
 - `src/` — aplicación React
