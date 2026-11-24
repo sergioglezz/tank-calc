@@ -135,3 +135,10 @@ Repaso de los criterios contra el código y los tests (613 en verde; lint y buil
 ### Pendiente
 - **T1 de la 004 (autor):** importar el repositorio en Vercel y, después, el enlace en el README, Lighthouse móvil y la prueba en un Android y un iPhone reales.
 - **Revisión por el autor** de las decisiones tomadas sin consulta.
+
+## 9. Revisión del proyecto
+Tras cerrar la 005 se revisaron todas las specs, el código y los documentos. El autor aprobó estos cambios:
+- **Constitución, sección 2:** decía «importes en euros redondeados a 2 decimales para mostrar», pero desde la ampliación de la 001 todas las cifras son enteras. Ahora lo dice así, con el precio por litro como única excepción.
+- **README:** sección «Cómo se usa», que pide la visión en «Terminado significa». El enlace a la demo se añadirá cuando exista la URL de Vercel.
+- **`.gitattributes` con `eol=lf`:** en Windows, `core.autocrlf` dejaba algunos archivos con CRLF en la copia de trabajo y `prettier --check` fallaba. En el repositorio ya estaban en LF, así que su contenido no cambia.
+- **Favicon** (`public/favicon.svg`): una gota lima sobre el verde oscuro del mockup. Evita el 404 en cada carga.
