@@ -81,7 +81,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   - el coche seleccionado aparece marcado.
 
   (verificación: `npm test` y revisión a 360 px en `npm run dev` | cubre: CA18–CA22, CA30)
-- [ ] T12: Crear `BottomSheet.tsx` sobre `<dialog>`, con Escape, clic en el fondo y devolución del foco. Añadir «Borrar» a los coches propios, con la confirmación en la hoja, y guardar con `saveCarState` (y el aviso si falla).
+- [x] T12: Crear `BottomSheet.tsx` sobre `<dialog>`, con Escape, clic en el fondo y devolución del foco. Añadir «Borrar» a los coches propios, con la confirmación en la hoja, y guardar con `saveCarState` (y el aviso si falla).
 
   Tests:
   - cancelar no borra;

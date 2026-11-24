@@ -6,6 +6,7 @@ import {
 } from './components/CalculatorScreen'
 import { ChooseCarScreen } from './components/ChooseCarScreen'
 import {
+  removeOwnCar,
   resolveSelected,
   selectCar,
   type CarRef,
@@ -110,6 +111,7 @@ function App({ storage }: AppProps) {
             cars={cars}
             onBack={() => goTo('calculator')}
             onSelect={chooseCar}
+            onDelete={(name) => updateCars(removeOwnCar(cars, name))}
           />
         )}
       </main>

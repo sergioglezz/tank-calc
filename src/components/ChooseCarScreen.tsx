@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { searchCars } from '../lib/carSearch'
 import { formatLiters } from '../lib/format'
 import {
@@ -8,20 +8,27 @@ import {
   type CarRef,
   type CarState,
 } from '../lib/ownCars'
+import { BottomSheet } from './BottomSheet'
 import { ScreenTitle } from './ScreenTitle'
 
 interface ChooseCarScreenProps {
   cars: CarState
   onBack: () => void
   onSelect: (ref: CarRef) => void
+  onDelete: (name: string) => void
 }
 
 export function ChooseCarScreen({
   cars,
   onBack,
   onSelect,
+  onDelete,
 }: ChooseCarScreenProps) {
   const [query, setQuery] = useState('')
+  // The own car waiting for the user to confirm its deletion (CA23).
+  const [toDelete, setToDelete] = useState<string | null>(null)
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const deleted = useRef(false)
   // Filtered on every key; own cars first, as the search returns them (CA21).
   const options = searchCars(query, cars.ownCars)
   const own = options.filter(({ ref }) => ref.source === 'own')
@@ -36,6 +43,11 @@ export function ChooseCarScreen({
           option={option}
           selected={selected !== null && isSameCar(selected, option.ref)}
           onSelect={() => onSelect(option.ref)}
+          onDelete={
+            option.ref.source === 'own'
+              ? () => setToDelete(option.label)
+              : undefined
+          }
         />
       ))}
     </ul>
@@ -50,7 +62,9 @@ export function ChooseCarScreen({
       >
         <span aria-hidden="true">← </span>Volver
       </button>
-      <ScreenTitle focusOnMount>Elige tu coche</ScreenTitle>
+      <ScreenTitle focusOnMount ref={titleRef}>
+        Elige tu coche
+      </ScreenTitle>
       <p className="mt-2 text-muted">
         La capacidad nos ayuda a hacer los cálculos.
       </p>
@@ -93,6 +107,39 @@ export function ChooseCarScreen({
         La capacidad puede variar según el año y la versión. Compruébala en el
         manual de tu coche.
       </p>
+
+      <BottomSheet
+        open={toDelete !== null}
+        title={`¿Borrar «${toDelete ?? ''}»?`}
+        onClose={() => {
+          setToDelete(null)
+          // Its row is gone, so the focus goes to the title (CA33).
+          if (deleted.current) titleRef.current?.focus()
+          deleted.current = false
+        }}
+      >
+        <div className="mt-6 space-y-3">
+          <button
+            type="button"
+            onClick={() => {
+              if (toDelete !== null) onDelete(toDelete)
+              deleted.current = true
+              setToDelete(null)
+            }}
+            className="min-h-14 w-full rounded-2xl bg-danger px-4 text-lg font-bold text-white"
+          >
+            Borrar
+          </button>
+          <button
+            type="button"
+            onClick={() => setToDelete(null)}
+            data-autofocus
+            className="min-h-14 w-full rounded-2xl border border-line px-4 text-lg font-bold hover:bg-mist"
+          >
+            Cancelar
+          </button>
+        </div>
+      </BottomSheet>
     </>
   )
 }
@@ -101,20 +148,22 @@ interface CarRowProps {
   option: CarOption
   selected: boolean
   onSelect: () => void
+  /** Only own cars can be deleted (CA16 of spec 002). */
+  onDelete?: () => void
 }
 
-function CarRow({ option, selected, onSelect }: CarRowProps) {
+function CarRow({ option, selected, onSelect, onDelete }: CarRowProps) {
   const note = selected
     ? 'Seleccionado'
     : option.ref.source === 'own'
       ? 'Añadido por ti'
       : null
   return (
-    <li>
+    <li className="flex items-stretch gap-2">
       <button
         type="button"
         onClick={onSelect}
-        className={`flex min-h-16 w-full items-center gap-3 rounded-2xl border p-4 text-left ${
+        className={`flex min-h-16 min-w-0 flex-1 items-center gap-3 rounded-2xl border p-4 text-left ${
           selected
             ? 'border-selected-line bg-selected'
             : 'border-line bg-card hover:bg-mist'
@@ -135,6 +184,16 @@ function CarRow({ option, selected, onSelect }: CarRowProps) {
           {selected ? '✓' : '›'}
         </span>
       </button>
+      {onDelete && (
+        <button
+          type="button"
+          onClick={onDelete}
+          aria-label={`Borrar ${option.label}`}
+          className="min-h-11 shrink-0 rounded-2xl border border-line bg-card px-3 font-semibold text-danger hover:bg-danger-soft"
+        >
+          Borrar
+        </button>
+      )}
     </li>
   )
 }

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import App from './App'
@@ -399,6 +399,84 @@ describe('App', () => {
       expect(
         screen.getByRole('region', { name: 'Tu coche' }).textContent,
       ).toContain('Seat Ibiza')
+    })
+  })
+
+  describe('delete an own car', () => {
+    const storeWithTwoCars = () =>
+      new MemoryStore({
+        [STORAGE_KEYS.ownCars]: JSON.stringify([
+          { name: 'Prueba', capacity: 50 },
+          { name: 'Mi furgoneta', capacity: 60 },
+        ]),
+        [STORAGE_KEYS.selectedCar]: JSON.stringify({
+          source: 'own',
+          name: 'Prueba',
+        }),
+      })
+
+    const openChooseCar = async (store: MemoryStore) => {
+      const result = renderApp(store)
+      await result.user.click(
+        screen.getByRole('button', { name: 'Cambiar coche' }),
+      )
+      return result
+    }
+
+    it('asks before deleting and cancelling keeps the car (CA23)', async () => {
+      const { user } = await openChooseCar(storeWithTwoCars())
+      await user.click(
+        screen.getByRole('button', { name: 'Borrar Mi furgoneta' }),
+      )
+      const dialog = screen.getByRole('dialog', {
+        name: '¿Borrar «Mi furgoneta»?',
+      })
+      expect(document.activeElement).toBe(
+        within(dialog).getByRole('button', { name: 'Cancelar' }),
+      )
+      await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
+      expect(screen.queryByRole('dialog')).toBeNull()
+      expect(screen.getByRole('button', { name: /^Mi furgoneta/ })).toBeTruthy()
+    })
+
+    it('deletes the car once confirmed and remembers it (CA23)', async () => {
+      const store = storeWithTwoCars()
+      const { user } = await openChooseCar(store)
+      await user.click(
+        screen.getByRole('button', { name: 'Borrar Mi furgoneta' }),
+      )
+      await user.click(
+        within(screen.getByRole('dialog')).getByRole('button', {
+          name: 'Borrar',
+        }),
+      )
+      expect(screen.queryByRole('button', { name: /^Mi furgoneta/ })).toBeNull()
+      expect(document.activeElement).toBe(heading('Elige tu coche'))
+      expect(store.getItem(STORAGE_KEYS.ownCars)).toBe(
+        JSON.stringify([{ name: 'Prueba', capacity: 50 }]),
+      )
+    })
+
+    it('goes back to the welcome after deleting the selected car (CA23)', async () => {
+      const { user } = await openChooseCar(storeWithTwoCars())
+      await user.click(screen.getByRole('button', { name: 'Borrar Prueba' }))
+      await user.click(
+        within(screen.getByRole('dialog')).getByRole('button', {
+          name: 'Borrar',
+        }),
+      )
+      await user.click(screen.getByRole('button', { name: 'Volver' }))
+      expect(screen.getByText('Solo paga lo que cabe.')).toBeTruthy()
+    })
+
+    it('has no delete button for catalog cars (CA23)', async () => {
+      await openChooseCar(storeWithTwoCars())
+      expect(
+        screen.queryByRole('button', { name: 'Borrar Toyota Corolla' }),
+      ).toBeNull()
+      expect(screen.getAllByRole('button', { name: /^Borrar / })).toHaveLength(
+        2,
+      )
     })
   })
 })
