@@ -1,4 +1,4 @@
-# Tareas — Feature 001: Llenar a tope (cálculo)
+# Tareas — Feature 001: Calculadora (lógica)
 
 Basadas en el [plan](plan.md). Se hacen en orden y de una en una. Al cerrar cada tarea: `npm run lint`, `npm test` y `npm run build` en verde, marcarla `[x]` y proponer el commit.
 
@@ -15,3 +15,13 @@ Basadas en el [plan](plan.md). Se hacen en orden y de una en una. Al cerrar cada
 
 ## Cierre
 - [x] T8: Actualizar `README.md`: qué es tank-calc, qué hay hecho (el cálculo, todavía sin interfaz) y cómo instalar, ejecutar los tests y hacer el build en local. (verificación: revisión del README | cubre: —)
+
+## Ampliación: lógica (`src/lib/`, plan §10)
+- [x] T9: Actualizar `validation.ts`: capacidad entera, `validateTargetLevel` (con la comprobación frente al nivel actual) y `validateMoney`, con sus tests. (verificación: `npm test` | cubre: CA3–CA6)
+- [x] T10: Renombrar `fillUp.ts` a `calculator.ts` y rehacer «A tope» con el resultado entero común (`resultForEuros`), depósito lleno y menos de 1 €, con sus tests. (verificación: `npm test` | cubre: CA7–CA10, CA16, CA17)
+- [x] T11: Añadir `calculateToLevel` («Hasta X %») con sus tests. (verificación: `npm test` | cubre: CA11, CA12)
+- [x] T12: Añadir `calculateWithMoney` («Tengo X €»), incluido el dinero sobrante, con sus tests. (verificación: `npm test` | cubre: CA13–CA15)
+- [x] T13: Pasar `format.ts` a enteros (`formatEuros`, `formatLiters`, `formatPercent`) con sus tests. (verificación: `npm test` | cubre: CA18)
+
+## Ampliación: cierre
+- [x] T14: Actualizar D1 en `docs/decisiones.md` con las nuevas unidades, el estado de la feature en `README.md` y el repaso de criterios de la spec ampliada al final del plan. (verificación: revisión de los documentos y `npm run lint`, `npm test` y `npm run build` en verde | cubre: —)
