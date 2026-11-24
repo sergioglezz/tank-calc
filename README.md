@@ -11,12 +11,14 @@ Todos los resultados son números enteros, redondeados a la baja para no pasarte
 
 No hace falta saber la capacidad del depósito: puedes buscar tu coche en una lista de unos 100 modelos populares en España o añadir el tuyo con su nombre y capacidad. La app recuerda tu coche y el último precio en tu dispositivo.
 
+Cada repostaje se puede guardar en un historial para saber cuánto gastaste la última vez, cada día y en lo que va de mes.
+
 ## Estado y hoja de ruta
 | Feature | Qué incluye | Estado |
 |---|---|---|
 | [001 — Calculadora (lógica)](specs/001-calculadora/spec.md) | Validación con mensajes en español y cálculo en euros, litros y porcentajes enteros de los tres modos: «A tope», «Hasta X %» y «Tengo X €» | ✅ Hecha (sin interfaz) |
 | [002 — Coches (lógica)](specs/002-coches/spec.md) | Lista de 106 modelos con su capacidad, búsqueda sin tildes ni mayúsculas, hasta 10 coches propios y recordar en el dispositivo los coches, el coche seleccionado y el último precio | ✅ Hecha (sin interfaz) |
-| 003 — Historial (lógica) | Guardar repostajes, último gasto y gasto de los últimos 7 días | Pendiente |
+| [003 — Historial (lógica)](specs/003-historial/spec.md) | Guardar y borrar repostajes (fecha, euros, precio, litros y coche), lo que gastaste la última vez, el gasto por día y el total del mes, y recordar en el dispositivo hasta 500 repostajes | ✅ Hecha (sin interfaz) |
 | 004+ — Interfaz | Pantallas basadas en el mockup de Figma y publicación en una URL | Pendiente |
 
 Todavía **no hay interfaz**: al ejecutar la app solo se ve el título. La lógica está en `src/lib/` y cubierta por tests.
@@ -58,5 +60,5 @@ El proyecto sigue *Spec-Driven Development*: cada feature tiene su `spec.md` (qu
 ## Estructura
 - `specs/` — visión, constitución y una carpeta por feature
 - `docs/decisiones.md` — registro de decisiones técnicas
-- `src/lib/` — lógica pura y sus tests: lectura de números, validación, cálculo de los tres modos, formato, lista de coches (`cars.json`), búsqueda, coches propios y guardado en el dispositivo
+- `src/lib/` — lógica pura y sus tests: lectura de números, validación, cálculo de los tres modos, formato, lista de coches (`cars.json`), búsqueda, coches propios, fechas, historial de repostajes y guardado en el dispositivo
 - `src/` — aplicación React

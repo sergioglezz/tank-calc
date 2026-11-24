@@ -23,3 +23,13 @@ Registro de decisiones importantes: qué se decidió, por qué y qué alternativ
 **Decisión:** `storage.ts` recibe el almacenamiento como parámetro (`Pick<Storage, 'getItem' | 'setItem'>`) en vez de usar `localStorage` directamente; `getBrowserStorage()` devuelve `localStorage` o `null` si el navegador no deja usarlo. Cada dato va en su propia clave: `tank-calc:own-cars`, `tank-calc:selected-car` y `tank-calc:price`.
 **Por qué:** así los tests corren en Node con un almacenamiento falso en memoria, que además permite simular lecturas y escrituras que fallan. Con una clave por dato, uno dañado no arrastra a los demás.
 **Descartado:** jsdom en esta feature, porque sería una dependencia que todavía no usa ningún componente; y guardar todo en una sola clave, porque un error en un dato haría perder todos.
+
+## D5 — Identificar los repostajes con un número correlativo (feature 003)
+**Decisión:** cada repostaje lleva un `id` entero: el mayor del historial más 1, o 1 si está vacío.
+**Por qué:** sirve para borrar un repostaje aunque haya otro con los mismos datos (CA9 de la spec 003) y para saber cuál se guardó antes el mismo día (CA8 y CA10). Si se borra el último guardado, el siguiente puede reutilizar su número, lo que no es un problema, porque el anterior ya no existe. Al cargar, de dos repostajes con el mismo número se queda el primero válido.
+**Descartado:** `crypto.randomUUID()`, porque no indica el orden de guardado y los tests tendrían que simularlo; y la posición en el array, porque cambia al borrar.
+
+## D6 — Fechas como texto `AAAA-MM-DD` y «hoy» como parámetro (feature 003)
+**Decisión:** la fecha de un repostaje se guarda como texto `AAAA-MM-DD`, sin hora. «Hoy» es el día local del dispositivo (`todayIso`) y las funciones lo reciben como parámetro en vez de leer el reloj.
+**Por qué:** un repostaje es de un día, no de un instante; guardar la hora traería problemas de zonas horarias y cambios de hora. Con ese formato las fechas se ordenan y comparan como texto, y es el mismo que da un campo de fecha del navegador. Recibir «hoy» hace las funciones puras y los tests no dependen del día en que se ejecutan. Los días entre dos fechas se cuentan con `Date.UTC`, que no tiene cambios de hora.
+**Descartado:** guardar marcas de tiempo (`Date.now()`) y añadir una librería de fechas (la constitución pide no añadir dependencias innecesarias).

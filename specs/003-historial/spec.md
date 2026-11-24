@@ -1,6 +1,6 @@
 # Feature 003: Historial de repostajes (lógica)
 
-> **Estado:** aprobada el 24/11/2026. Cómo se implementa: [plan.md](plan.md).
+> **Estado:** cerrada el 24/11/2026; se cumplen los 18 criterios de aceptación (ver [plan.md](plan.md), sección 7).
 
 ## Resumen y objetivo
 Toda la lógica del historial de repostajes, sin interfaz. La app sabe:
