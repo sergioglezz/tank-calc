@@ -1,14 +1,18 @@
+import { useEffect, useRef, useState } from 'react'
 import {
   evaluateCalculator,
   type CalculatorFields,
   type Mode,
 } from '../lib/calculatorForm'
+import type { IsoDate } from '../lib/dates'
 import { formatLiters } from '../lib/format'
 import type { CarOption } from '../lib/ownCars'
+import type { RefuelInput } from '../lib/refuels'
 import { describeResult } from '../lib/resultText'
 import { ModeSelector } from './ModeSelector'
 import { NumberField } from './NumberField'
 import { ResultCard } from './ResultCard'
+import { SaveRefuelSheet } from './SaveRefuelSheet'
 import { ScreenTitle } from './ScreenTitle'
 import { Welcome } from './Welcome'
 
@@ -32,16 +36,19 @@ interface CalculatorScreenProps {
   onFieldChange: (field: Field, value: string) => void
   onTouch: (field: Field) => void
   onModeChange: (mode: Mode) => void
+  /** Whether «Repostaje guardado» is shown (CA9–CA10 of spec 005). */
+  justSaved: boolean
+  getToday: () => IsoDate
+  onOpenSave: () => void
+  /** Saves the refuel; true if it was saved. */
+  onSaveRefuel: (input: RefuelInput) => boolean
 }
 
 export function CalculatorScreen({
   car,
-  form,
   focusOnMount,
   onChooseCar,
-  onFieldChange,
-  onTouch,
-  onModeChange,
+  ...calculatorProps
 }: CalculatorScreenProps) {
   return (
     <>
@@ -49,14 +56,7 @@ export function CalculatorScreen({
       {car === null ? (
         <Welcome onChooseCar={onChooseCar} />
       ) : (
-        <Calculator
-          car={car}
-          form={form}
-          onChooseCar={onChooseCar}
-          onFieldChange={onFieldChange}
-          onTouch={onTouch}
-          onModeChange={onModeChange}
-        />
+        <Calculator car={car} onChooseCar={onChooseCar} {...calculatorProps} />
       )}
     </>
   )
@@ -73,7 +73,18 @@ function Calculator({
   onFieldChange,
   onTouch,
   onModeChange,
+  justSaved,
+  getToday,
+  onOpenSave,
+  onSaveRefuel,
 }: CalculatorProps) {
+  const [saving, setSaving] = useState(false)
+  const savedRef = useRef<HTMLParagraphElement>(null)
+
+  // Bring «Repostaje guardado» above the bottom bar when it appears.
+  useEffect(() => {
+    if (justSaved) savedRef.current?.scrollIntoView?.({ block: 'nearest' })
+  }, [justSaved])
   // Recalculated on every render: any change updates the result and, once a
   // field has been left, its error (CA6, CA12, CA13).
   const evaluation = evaluateCalculator(car.capacity, mode, fields)
@@ -164,6 +175,49 @@ function Calculator({
         text={describeResult(mode, evaluation)}
         emphasis={result?.status === 'ok'}
       />
+
+      {/* Only a result with figures can be saved (CA5 of spec 005). */}
+      <button
+        type="button"
+        disabled={result?.status !== 'ok'}
+        onClick={() => {
+          onOpenSave()
+          setSaving(true)
+        }}
+        className="mt-6 min-h-14 w-full rounded-2xl bg-lime px-4 text-lg font-bold hover:bg-lime-dark disabled:bg-mist disabled:text-muted"
+      >
+        Guardar repostaje
+      </button>
+      <div role="status">
+        {justSaved && (
+          <p
+            ref={savedRef}
+            className="mt-4 flex scroll-mb-28 items-center gap-3 rounded-2xl bg-ink p-4 font-semibold text-white"
+          >
+            <span aria-hidden="true" className="text-lime">
+              ✓
+            </span>
+            Repostaje guardado
+          </p>
+        )}
+      </div>
+
+      {result?.status === 'ok' && (
+        <SaveRefuelSheet
+          open={saving}
+          initial={{
+            eurosText: String(result.euros),
+            priceText: fields.price,
+            dateText: getToday(),
+          }}
+          today={getToday()}
+          carLabel={car.label}
+          onSave={(input) => {
+            if (onSaveRefuel(input)) setSaving(false)
+          }}
+          onClose={() => setSaving(false)}
+        />
+      )}
     </>
   )
 }

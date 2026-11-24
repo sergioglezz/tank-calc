@@ -24,7 +24,12 @@ import {
   type KeyValueStore,
 } from './lib/storage'
 import { todayIso, type IsoDate } from './lib/dates'
-import { removeRefuel, type RefuelHistory } from './lib/refuels'
+import {
+  addRefuel,
+  removeRefuel,
+  type RefuelHistory,
+  type RefuelInput,
+} from './lib/refuels'
 import { validatePrice } from './lib/validation'
 
 export interface AppProps {
@@ -51,11 +56,14 @@ function App({ storage, getToday = todayIso }: AppProps) {
   const [hasNavigated, setHasNavigated] = useState(false)
   // Whether the last attempt to remember something failed (CA29).
   const [saveFailed, setSaveFailed] = useState(false)
+  // «Repostaje guardado», until something else happens (CA10 of spec 005).
+  const [justSaved, setJustSaved] = useState(false)
 
   const goTo = (next: Screen) => {
     // Pressing the section already shown does nothing (CA2 of spec 005).
     if (next === screen) return
     setScreen(next)
+    setJustSaved(false)
     setHasNavigated(true)
   }
 
@@ -69,6 +77,15 @@ function App({ storage, getToday = todayIso }: AppProps) {
   const updateRefuels = (next: RefuelHistory) => {
     setRefuels(next)
     setSaveFailed(!saveRefuels(storage, next))
+  }
+
+  /** Saves a refuel with the selected car (CA9 of spec 005). */
+  const saveRefuel = (input: RefuelInput): boolean => {
+    const result = addRefuel(refuels, input, cars, getToday())
+    if (!result.ok) return false
+    updateRefuels(result.history)
+    setJustSaved(true)
+    return true
   }
 
   const chooseCar = (ref: CarRef) => {
@@ -85,6 +102,7 @@ function App({ storage, getToday = todayIso }: AppProps) {
   }
 
   const changeField = (field: Field, value: string) => {
+    setJustSaved(false)
     setForm((current) => ({
       ...current,
       fields: { ...current.fields, [field]: value },
@@ -129,9 +147,14 @@ function App({ storage, getToday = todayIso }: AppProps) {
             onChooseCar={() => goTo('chooseCar')}
             onFieldChange={changeField}
             onTouch={touchField}
-            onModeChange={(mode) =>
+            onModeChange={(mode) => {
+              setJustSaved(false)
               setForm((current) => ({ ...current, mode }))
-            }
+            }}
+            justSaved={justSaved}
+            getToday={getToday}
+            onOpenSave={() => setJustSaved(false)}
+            onSaveRefuel={saveRefuel}
           />
         ) : screen === 'history' ? (
           <HistoryScreen

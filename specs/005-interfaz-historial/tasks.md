@@ -44,7 +44,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   (verificación: `npm test` | cubre: CA18–CA20, parte de CA22)
 
 ## Guardar un repostaje
-- [ ] T5: Añadir a la calculadora el botón «Guardar repostaje» y el aviso «Repostaje guardado», crear `SaveRefuelSheet.tsx` y conectar `addRefuel` con `saveRefuels` en `App`.
+- [x] T5: Añadir a la calculadora el botón «Guardar repostaje» y el aviso «Repostaje guardado», crear `SaveRefuelSheet.tsx` y conectar `addRefuel` con `saveRefuels` en `App`.
 
   Tests:
   - estado del botón en cada caso;

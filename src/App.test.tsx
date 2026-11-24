@@ -1,5 +1,11 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import App from './App'
@@ -314,7 +320,7 @@ describe('App', () => {
 
       await user.type(input('Nivel actual (%)'), '25')
       await user.type(input('Precio por litro (€/l)'), '1,579')
-      expect(screen.getByRole('status').textContent).toBe(SAVE_FAILED)
+      expect(screen.getByText(SAVE_FAILED)).toBeTruthy()
       expect(resultText()).toContain('Pide 59 €')
     })
   })
@@ -890,6 +896,249 @@ describe('App', () => {
           name: 'Aún no has guardado ningún repostaje',
         }),
       ).toBeTruthy()
+    })
+  })
+
+  describe('save a refuel', () => {
+    const saveButton = () =>
+      screen.getByRole('button', {
+        name: 'Guardar repostaje',
+      }) as HTMLButtonElement
+
+    const fillCalculator = async (
+      user: ReturnType<typeof userEvent.setup>,
+      level = '25',
+      price = '1,579',
+    ) => {
+      await user.type(input('Nivel actual (%)'), level)
+      await user.type(input('Precio por litro (€/l)'), price)
+    }
+
+    const openSheet = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(saveButton())
+      return screen.getByRole('dialog', { name: 'Guardar repostaje' })
+    }
+
+    const field = (dialog: HTMLElement, name: string) =>
+      within(dialog).getByLabelText(name) as HTMLInputElement
+
+    it('enables the button only when the card shows figures (CA5)', async () => {
+      const { user } = renderApp(storeWithCar())
+      expect(saveButton().disabled).toBe(true)
+      await fillCalculator(user)
+      expect(saveButton().disabled).toBe(false)
+
+      await user.clear(input('Nivel actual (%)'))
+      await user.type(input('Nivel actual (%)'), '100')
+      expect(saveButton().disabled).toBe(true)
+
+      await user.clear(input('Nivel actual (%)'))
+      await user.type(input('Nivel actual (%)'), '99')
+      await user.clear(input('Precio por litro (€/l)'))
+      await user.type(input('Precio por litro (€/l)'), '1,5')
+      expect(resultText()).toContain('Falta menos de 1 €')
+      expect(saveButton().disabled).toBe(true)
+    })
+
+    it('has no button on the welcome (CA5)', () => {
+      renderApp()
+      expect(
+        screen.queryByRole('button', { name: 'Guardar repostaje' }),
+      ).toBeNull()
+    })
+
+    it('fills in the euros to ask for, the price, today and the car (CA6)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await fillCalculator(user)
+      await user.click(screen.getByRole('button', { name: 'Tengo X €' }))
+      await user.type(input('Euros que tienes'), '80')
+
+      const dialog = await openSheet(user)
+      expect(field(dialog, 'Euros pagados (€)').value).toBe('59')
+      expect(field(dialog, 'Euros pagados (€)').inputMode).toBe('numeric')
+      expect(field(dialog, 'Precio por litro (€/l)').value).toBe('1,579')
+      expect(field(dialog, 'Fecha').value).toBe(TODAY)
+      expect(field(dialog, 'Fecha').min).toBe('2025-11-24')
+      expect(field(dialog, 'Fecha').max).toBe(TODAY)
+      expect(
+        within(dialog).getByText('Se guardará con tu coche: Prueba.'),
+      ).toBeTruthy()
+    })
+
+    it('saves the refuel, shows the notice and lists it (CA9)', async () => {
+      const store = storeWithCar()
+      const { user } = renderApp(store)
+      await fillCalculator(user)
+      const dialog = await openSheet(user)
+      await user.click(within(dialog).getByRole('button', { name: 'Guardar' }))
+
+      expect(screen.queryByRole('dialog')).toBeNull()
+      expect(screen.getByText('Repostaje guardado')).toBeTruthy()
+      heading('Calculadora')
+      expect(JSON.parse(store.getItem(STORAGE_KEYS.refuels) ?? '[]')).toEqual([
+        {
+          id: 1,
+          date: TODAY,
+          euros: 59,
+          price: 1.579,
+          liters: 37,
+          car: 'Prueba',
+        },
+      ])
+
+      await user.click(
+        within(screen.getByRole('navigation', { name: 'Principal' })).getByRole(
+          'button',
+          { name: 'Historial' },
+        ),
+      )
+      expect(
+        screen.getByRole('region', { name: 'Repostajes' }).textContent,
+      ).toContain('24/11/2026')
+    })
+
+    it('saves the edited values, including another day (CA7)', async () => {
+      const store = storeWithCar()
+      const { user } = renderApp(store)
+      await fillCalculator(user)
+      const dialog = await openSheet(user)
+      await user.clear(field(dialog, 'Euros pagados (€)'))
+      await user.type(field(dialog, 'Euros pagados (€)'), '4a0')
+      expect(field(dialog, 'Euros pagados (€)').value).toBe('40')
+      await user.clear(field(dialog, 'Precio por litro (€/l)'))
+      await user.type(field(dialog, 'Precio por litro (€/l)'), '1.6')
+      fireEvent.change(field(dialog, 'Fecha'), {
+        target: { value: '2026-11-20' },
+      })
+      await user.click(within(dialog).getByRole('button', { name: 'Guardar' }))
+
+      expect(JSON.parse(store.getItem(STORAGE_KEYS.refuels) ?? '[]')).toEqual([
+        {
+          id: 1,
+          date: '2026-11-20',
+          euros: 40,
+          price: 1.6,
+          liters: 25,
+          car: 'Prueba',
+        },
+      ])
+    })
+
+    it('shows errors when leaving a field and all of them when saving (CA8)', async () => {
+      const store = storeWithCar()
+      const { user } = renderApp(store)
+      await fillCalculator(user)
+      const dialog = await openSheet(user)
+
+      await user.clear(field(dialog, 'Euros pagados (€)'))
+      await user.tab()
+      expect(
+        within(dialog).getByText('Introduce el importe pagado.'),
+      ).toBeTruthy()
+
+      await user.type(field(dialog, 'Euros pagados (€)'), '1001')
+      expect(
+        within(dialog).getByText('Escribe un importe entero entre 1 y 1000 €.'),
+      ).toBeTruthy()
+
+      await user.clear(field(dialog, 'Precio por litro (€/l)'))
+      fireEvent.change(field(dialog, 'Fecha'), {
+        target: { value: '2026-11-25' },
+      })
+      await user.click(within(dialog).getByRole('button', { name: 'Guardar' }))
+
+      expect(
+        within(dialog).getByText('Introduce el precio por litro.'),
+      ).toBeTruthy()
+      expect(
+        within(dialog).getByText('La fecha no puede ser posterior a hoy.'),
+      ).toBeTruthy()
+      expect(field(dialog, 'Fecha').getAttribute('aria-invalid')).toBe('true')
+      expect(screen.getByRole('dialog', { name: 'Guardar repostaje' })).toBe(
+        dialog,
+      )
+      expect(store.getItem(STORAGE_KEYS.refuels)).toBe(null)
+    })
+
+    it('cancelling saves nothing (CA11)', async () => {
+      const store = storeWithCar()
+      const { user } = renderApp(store)
+      await fillCalculator(user)
+      const dialog = await openSheet(user)
+      await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
+      expect(screen.queryByRole('dialog')).toBeNull()
+      expect(screen.queryByText('Repostaje guardado')).toBeNull()
+      expect(store.getItem(STORAGE_KEYS.refuels)).toBe(null)
+    })
+
+    it('hides the notice when data changes, on navigating or reopening (CA10)', async () => {
+      const { user } = renderApp(storeWithCar())
+      await fillCalculator(user)
+      const save = async () => {
+        const dialog = await openSheet(user)
+        await user.click(
+          within(dialog).getByRole('button', { name: 'Guardar' }),
+        )
+        expect(screen.getByText('Repostaje guardado')).toBeTruthy()
+      }
+
+      await save()
+      await user.type(input('Nivel actual (%)'), '{Backspace}')
+      expect(screen.queryByText('Repostaje guardado')).toBeNull()
+
+      await user.type(input('Nivel actual (%)'), '5')
+      await save()
+      await user.click(screen.getByRole('button', { name: 'Hasta X %' }))
+      expect(screen.queryByText('Repostaje guardado')).toBeNull()
+
+      await user.click(screen.getByRole('button', { name: 'A tope' }))
+      await save()
+      await openSheet(user)
+      expect(screen.queryByText('Repostaje guardado')).toBeNull()
+      await user.keyboard('{Escape}')
+    })
+
+    it('keeps the calculator and the remembered price (CA12)', async () => {
+      const store = storeWithCar()
+      const { user } = renderApp(store)
+      await fillCalculator(user)
+      const dialog = await openSheet(user)
+      await user.clear(field(dialog, 'Precio por litro (€/l)'))
+      await user.type(field(dialog, 'Precio por litro (€/l)'), '1,7')
+      await user.click(within(dialog).getByRole('button', { name: 'Guardar' }))
+
+      expect(input('Precio por litro (€/l)').value).toBe('1,579')
+      expect(input('Nivel actual (%)').value).toBe('25')
+      expect(store.getItem(STORAGE_KEYS.price)).toBe('1,579')
+    })
+
+    it('warns when the refuel cannot be saved and keeps it (CA22)', async () => {
+      const store = new FailingStore({
+        [STORAGE_KEYS.ownCars]: JSON.stringify([
+          { name: 'Prueba', capacity: 50 },
+        ]),
+        [STORAGE_KEYS.selectedCar]: JSON.stringify({
+          source: 'own',
+          name: 'Prueba',
+        }),
+      })
+      const { user } = renderApp(store)
+      await fillCalculator(user)
+      const dialog = await openSheet(user)
+      await user.click(within(dialog).getByRole('button', { name: 'Guardar' }))
+      expect(
+        screen.getByText(/No se han podido guardar tus datos/),
+      ).toBeTruthy()
+
+      await user.click(
+        within(screen.getByRole('navigation', { name: 'Principal' })).getByRole(
+          'button',
+          { name: 'Historial' },
+        ),
+      )
+      expect(
+        screen.getByRole('region', { name: 'Repostajes' }).textContent,
+      ).toContain('1 repostaje')
     })
   })
 })
