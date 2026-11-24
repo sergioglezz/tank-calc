@@ -22,7 +22,7 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
 - [x] T6: Implementar `resultText.ts` (`describeResult`) con un test por cada fila de la tabla de CA7, con los textos exactos. (verificación: `npm test` | cubre: CA7)
 
 ## Calculadora
-- [ ] T7: Sustituir el marcador de `App.tsx`:
+- [x] T7: Sustituir el marcador de `App.tsx`:
   - cabecera con la etiqueta «Reposta con cabeza»;
   - carga con `loadSavedData`;
   - estado de pantalla;
