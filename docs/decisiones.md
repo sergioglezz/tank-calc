@@ -26,7 +26,7 @@ Registro de decisiones importantes: qué se decidió, por qué y qué alternativ
 
 ## D5 — Identificar los repostajes con un número correlativo (feature 003)
 **Decisión:** cada repostaje lleva un `id` entero: el mayor del historial más 1, o 1 si está vacío.
-**Por qué:** sirve para borrar un repostaje aunque haya otro con los mismos datos (CA9 de la spec 003) y para saber cuál se guardó antes el mismo día (CA8 y CA10). Si se borra el último guardado, el siguiente puede reutilizar su número, lo que no es un problema, porque el anterior ya no existe. Al cargar, de dos repostajes con el mismo número se queda el primero válido.
+**Por qué:** sirve para borrar un repostaje aunque haya otro con los mismos datos (CA9 de la spec 003) y para saber cuál se guardó antes el mismo día (CA8 y CA10). Si se borra el último guardado, el siguiente puede reutilizar su número, lo que no es un problema, porque el anterior ya no existe. Al cargar, de dos repostajes con el mismo número se queda el primero válido, y solo se aceptan enteros seguros (`Number.isSafeInteger`): por encima, el mayor más 1 puede dar otra vez el mismo número.
 **Descartado:** `crypto.randomUUID()`, porque no indica el orden de guardado y los tests tendrían que simularlo; y la posición en el array, porque cambia al borrar.
 
 ## D6 — Fechas como texto `AAAA-MM-DD` y «hoy» como parámetro (feature 003)
@@ -34,18 +34,19 @@ Registro de decisiones importantes: qué se decidió, por qué y qué alternativ
 **Por qué:** un repostaje es de un día, no de un instante; guardar la hora traería problemas de zonas horarias y cambios de hora. Con ese formato las fechas se ordenan y comparan como texto, y es el mismo que da un campo de fecha del navegador. Recibir «hoy» hace las funciones puras y los tests no dependen del día en que se ejecutan. Los días entre dos fechas se cuentan con `Date.UTC`, que no tiene cambios de hora.
 **Descartado:** guardar marcas de tiempo (`Date.now()`) y añadir una librería de fechas (la constitución pide no añadir dependencias innecesarias).
 
-## D7 — Navegación con estado, sin router (feature 004)
-**Decisión:** `App` guarda en su estado qué pantalla se ve (`'calculator' | 'chooseCar'`).
-**Por qué:** solo hay dos pantallas y ninguna necesita su propia URL. Un `useState` basta y cumple la constitución, que no permite router.
+## D7 — Navegación con estado, sin router (features 004 y 005)
+**Decisión:** `App` guarda en su estado qué pantalla se ve (`'calculator' | 'chooseCar' | 'history'`).
+**Por qué:** son pocas pantallas y ninguna necesita su propia URL. Un `useState` basta y cumple la constitución, que no permite router.
 **Descartado:** React Router y la History API. El botón «Atrás» del móvil para volver de «Elige tu coche» queda fuera de alcance (spec 004).
+**Cambio (feature 005):** se añadió la pantalla «Historial» (`'history'`) y la barra inferior para moverse entre «Calculadora» e «Historial».
 
 ## D8 — Tailwind v4 con los colores del mockup y la fuente del sistema (feature 004)
 **Decisión:** Tailwind v4 con su plugin de Vite y un único `src/index.css`. Los colores del mockup son variables de `@theme` (`bg-ink`, `text-lime`, `bg-canvas`…) y la fuente es la del sistema (`system-ui`).
 **Por qué:** el plugin de Vite es la instalación oficial de Tailwind v4 y no necesita PostCSS. Con la fuente del sistema no hay dependencia ni petición a un tercero, y el texto aparece al instante. Cada pareja de colores de texto cumple el contraste AA (mínimo 4,97:1).
 **Descartado:** Inter con `@fontsource` (una dependencia más para un cambio pequeño) y Google Fonts (petición a un tercero).
 
-## D9 — `<dialog>` nativo para las hojas inferiores (feature 004)
-**Decisión:** `BottomSheet` usa `<dialog>` con `showModal()`. Lo usan «Añadir mi coche» y la confirmación de borrado.
+## D9 — `<dialog>` nativo para las hojas inferiores (features 004 y 005)
+**Decisión:** `BottomSheet` usa `<dialog>` con `showModal()`. Lo usan «Añadir mi coche» y la confirmación de borrado de un coche (004), y «Guardar repostaje» y la confirmación de borrado de un repostaje (005).
 **Por qué:** el navegador lleva el foco dentro, lo encierra, cierra con Escape, oscurece el fondo y devuelve el foco al botón que abrió la hoja. Un clic cuyo destino es el propio `<dialog>` es un clic en el fondo y la cierra.
 **Descartado:** una hoja hecha a mano, que obliga a programar todo eso, y una librería de componentes, que la constitución no permite.
 

@@ -16,7 +16,7 @@ Basadas en el [plan](plan.md). Se hacen en orden y de una en una. Al cerrar cada
 ## Cierre
 - [x] T8: Actualizar `README.md`: qué es tank-calc, qué hay hecho (el cálculo, todavía sin interfaz) y cómo instalar, ejecutar los tests y hacer el build en local. (verificación: revisión del README | cubre: —)
 
-## Ampliación: lógica (`src/lib/`, plan §10)
+## Ampliación: lógica (`src/lib/`, plan §9)
 - [x] T9: Actualizar `validation.ts`: capacidad entera, `validateTargetLevel` (con la comprobación frente al nivel actual) y `validateMoney`, con sus tests. (verificación: `npm test` | cubre: CA3–CA6)
 - [x] T10: Renombrar `fillUp.ts` a `calculator.ts` y rehacer «A tope» con el resultado entero común (`resultForEuros`), depósito lleno y menos de 1 €, con sus tests. (verificación: `npm test` | cubre: CA7–CA10, CA16, CA17)
 - [x] T11: Añadir `calculateToLevel` («Hasta X %») con sus tests. (verificación: `npm test` | cubre: CA11, CA12)

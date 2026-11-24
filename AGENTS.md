@@ -26,7 +26,7 @@ Si no sabes cuál es la feature activa, pregunta.
 - Respeta `specs/00-constitution.md`; si una tarea la contradice, avisa antes de seguir.
 
 ## Al terminar una tarea
-1. Ejecuta lint, tests y build (comandos abajo) y corrige lo que falle.
+1. Ejecuta lint, tests, build y la comprobación del formato (comandos abajo) y corrige lo que falle.
 2. Marca la tarea como `[x]` en `tasks.md`.
 3. Propón un mensaje de commit (en español, imperativo, p. ej. `Añadir cálculo de llenado a tope`). No hagas commit sin confirmación.
 
@@ -39,6 +39,7 @@ Si no sabes cuál es la feature activa, pregunta.
 | Lint | `npm run lint` |
 | Build | `npm run build` |
 | Formatear código | `npm run format` |
+| Comprobar el formato | `npm run format:check` |
 
 ## Estructura
 - `specs/` — visión, constitución y una carpeta por feature (`NNN-nombre-feature/`).

@@ -8,9 +8,11 @@ Cualquier conductor que está en la gasolinera con el móvil en la mano y quiere
 
 ## MVP: 3 funcionalidades mínimas
 1. **Calculadora de repostaje con varios modos.** El usuario indica el nivel actual del depósito (en %) y el precio por litro (a mano), y elige un modo:
-   - **Llenar a tope:** litros y euros necesarios, y el importe a pedir sin pasarse (importe exacto truncado a euros, sin céntimos; p. ej. 47,83 € → 47 €).
-   - **Llenar hasta X %:** litros y euros para llegar al porcentaje objetivo.
-   - **Tengo X €:** litros que entran con ese dinero y porcentaje en el que quedará el depósito.
+   - **Llenar a tope:** el importe a pedir sin pasarse, los litros que entran y el nivel en que queda el depósito.
+   - **Llenar hasta X %:** lo mismo para llegar al porcentaje objetivo.
+   - **Tengo X €:** litros que entran con ese dinero, porcentaje en el que quedará el depósito y, si sobra dinero, cuánto.
+
+   Todas las cifras son enteras y se truncan para no pasarse nunca (p. ej. un coste de 47,83 € se pide como 47 €). El único dato con decimales es el precio por litro.
 2. **Mi coche.** El usuario elige su modelo de una lista incluida en la app (JSON con modelos populares y su capacidad de depósito). Si no está, puede añadir su coche (nombre + capacidad en litros), que se guarda solo en su dispositivo. La app recuerda el coche seleccionado y el último precio entre visitas.
 3. **Historial de repostajes.** El usuario puede guardar un repostaje (fecha, litros, euros, precio/litro) y consultar cuánto gastó la última vez y un resumen sencillo de su gasto por días.
 

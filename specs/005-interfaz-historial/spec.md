@@ -13,6 +13,8 @@ Como en la 004, la interfaz no hace cálculos propios: los litros, las sumas, el
 
 **Diseño de referencia:** las capturas 01, 06, 08, 09, 11 y 12 de [docs/design/](../../docs/design/). Del mockup se toman el estilo, la estructura y la navegación. Las cifras son las de las specs: euros y litros enteros, precio con hasta tres decimales y fechas `24/11/2026`.
 
+La pantalla «Historial» lleva el título «Tu historial» (captura 06). Como en la 004, los textos secundarios que no cambian el comportamiento se toman del mockup, como la etiqueta «Tu próxima parada cuenta» del historial vacío. Los textos de los criterios de aceptación mandan sobre el mockup.
+
 ## Historias de usuario
 - Como conductor quiero **guardar el repostaje con un toque** después de calcularlo, sin volver a escribir los datos.
 - Como conductor quiero **cambiar el importe, el precio o el día** al guardar, porque a veces pago otra cantidad o apunto un repostaje de otro día.

@@ -2,15 +2,13 @@ import { useState, type FormEvent } from 'react'
 import { shiftDays, type IsoDate } from '../lib/dates'
 import type { RefuelInput } from '../lib/refuels'
 import {
+  MAX_REFUEL_AGE_DAYS,
   validatePaidEuros,
   validatePrice,
   validateRefuelDate,
 } from '../lib/validation'
 import { BottomSheet } from './BottomSheet'
 import { NumberField } from './NumberField'
-
-/** How old a refuel can be (CA4 of spec 003). */
-const MAX_AGE_DAYS = 365
 
 interface SaveRefuelSheetProps {
   open: boolean
@@ -125,7 +123,7 @@ function SaveRefuelForm({
       <input
         id="refuel-date"
         type="date"
-        min={shiftDays(today, -MAX_AGE_DAYS)}
+        min={shiftDays(today, -MAX_REFUEL_AGE_DAYS)}
         max={today}
         value={date}
         onChange={(event) => setDate(event.target.value)}

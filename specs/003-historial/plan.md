@@ -93,7 +93,7 @@ Nueva clave `tank-calc:refuels`, con el historial en JSON (CA18). Se reutilizan 
 
 - **`loadRefuels(storage | null): RefuelHistory`:** nunca lanza excepciones. Sin almacenamiento, sin la clave, con una lectura que falla o con un JSON que no es un array, el historial está vacío (CA15 y CA16). Si es un array, se descarta cada elemento que (CA16):
   - no sea un objeto;
-  - no tenga un `id` entero ≥ 1 o repita el `id` de uno anterior;
+  - no tenga un `id` entero ≥ 1 (y entero seguro, `Number.isSafeInteger`; añadido en la segunda revisión, plan de la 005, sección 10) o repita el `id` de uno anterior;
   - no tenga una `date` que pase `isValidIsoDate` (no se aplica el límite de un año ni el de hoy);
   - no tenga unos `euros` que pasen `validatePaidEuros(String(euros))` o un `price` que pase `validatePrice(String(price))`;
   - no tenga unos `liters` iguales a `litersForEuros(euros, price)`;
