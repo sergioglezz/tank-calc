@@ -16,9 +16,9 @@ Cada repostaje se puede guardar en un historial para saber cuánto gastaste la �
 ## Estado y hoja de ruta
 | Feature | Qué incluye | Estado |
 |---|---|---|
-| [001 — Calculadora (lógica)](specs/001-calculadora/spec.md) | Validación con mensajes en español y cálculo en euros, litros y porcentajes enteros de los tres modos: «A tope», «Hasta X %» y «Tengo X €» | ✅ Hecha (sin interfaz) |
-| [002 — Coches (lógica)](specs/002-coches/spec.md) | Lista de 106 modelos con su capacidad, búsqueda sin tildes ni mayúsculas, hasta 10 coches propios y recordar en el dispositivo los coches, el coche seleccionado y el último precio | ✅ Hecha (sin interfaz) |
-| [003 — Historial (lógica)](specs/003-historial/spec.md) | Guardar y borrar repostajes (fecha, euros, precio, litros y coche), lo que gastaste la última vez, el gasto por día y el total del mes, y recordar en el dispositivo hasta 500 repostajes | ✅ Hecha (sin interfaz) |
+| [001 — Calculadora (lógica)](specs/001-calculadora/spec.md) | Validación con mensajes en español y cálculo en euros, litros y porcentajes enteros de los tres modos: «A tope», «Hasta X %» y «Tengo X €» | ✅ Hecha (lógica) |
+| [002 — Coches (lógica)](specs/002-coches/spec.md) | Lista de 106 modelos con su capacidad, búsqueda sin tildes ni mayúsculas, hasta 10 coches propios y recordar en el dispositivo los coches, el coche seleccionado y el último precio | ✅ Hecha (lógica) |
+| [003 — Historial (lógica)](specs/003-historial/spec.md) | Guardar y borrar repostajes (fecha, euros, precio, litros y coche), lo que gastaste la última vez, el gasto por día y el total del mes, y recordar en el dispositivo hasta 500 repostajes | ✅ Hecha (lógica) |
 | [004 — Interfaz de la calculadora y los coches](specs/004-interfaz-calculadora/spec.md) | Calculadora con los tres modos y resultado al momento, errores al salir de cada campo, teclado numérico, elegir, añadir y borrar coches, y accesibilidad básica, mobile-first | ✅ Hecha · publicación en Vercel pendiente |
 | [005 — Interfaz del historial](specs/005-interfaz-historial/spec.md) | Guardar el repostaje desde la calculadora (con otro importe, precio o día), pantalla «Historial» con la última vez, el gasto del mes y por día y la lista de repostajes, borrar repostajes y barra de navegación inferior | ✅ Hecha · publicación en Vercel pendiente |
 
@@ -59,10 +59,11 @@ npm test         # tests (npm run test:watch para modo vigilancia)
 npm run lint     # lint con oxlint
 npm run build    # comprobación de tipos y build de producción en dist/
 npm run format   # formatear el código con Prettier
+npm run format:check  # comprobar el formato sin cambiar nada
 ```
 
 ## Stack
-React + TypeScript (Vite), Tailwind CSS, Vitest con Testing Library, oxlint y Prettier. CI con GitHub Actions: lint, tests y build en cada push y PR. Los detalles y su porqué están en la [constitución](specs/00-constitution.md) y en [docs/decisiones.md](docs/decisiones.md).
+React + TypeScript (Vite), Tailwind CSS, Vitest con Testing Library, oxlint y Prettier. CI con GitHub Actions: lint, formato, tests y build en cada push y PR. Los detalles y su porqué están en la [constitución](specs/00-constitution.md) y en [docs/decisiones.md](docs/decisiones.md).
 
 ## Cómo se desarrolla
 El proyecto sigue *Spec-Driven Development*: cada feature tiene su `spec.md` (qué y por qué), su `plan.md` (cómo) y su `tasks.md` (tareas) en `specs/`. Las instrucciones para agentes de IA están en [AGENTS.md](AGENTS.md).
@@ -72,4 +73,8 @@ El proyecto sigue *Spec-Driven Development*: cada feature tiene su `spec.md` (qu
 - `docs/decisiones.md` — registro de decisiones técnicas
 - `src/lib/` — lógica pura y sus tests: lectura de números, validación, cálculo de los tres modos, formato, lista de coches (`cars.json`), búsqueda, coches propios, fechas, historial de repostajes y guardado en el dispositivo
 - `src/components/` — pantallas y componentes de la interfaz
+- `src/test/` — preparación de los tests de componentes y almacenamiento falso en memoria
 - `src/` — aplicación React (`App.tsx`) y sus tests de componentes
+- `public/` — archivos estáticos (favicon)
+- `docs/design/` — capturas del mockup
+- `.github/workflows/ci.yml` — CI de GitHub Actions

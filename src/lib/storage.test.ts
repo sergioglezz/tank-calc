@@ -388,6 +388,7 @@ describe('loadRefuels', () => {
       ['no id', { ...good, id: undefined }],
       ['id 0', { ...good, id: 0 }],
       ['decimal id', { ...good, id: 1.5 }],
+      ['an id beyond the safe integers', { ...good, id: 2 ** 53 }],
       ['id as text', { ...good, id: '7' }],
       ['a date that does not exist', { ...good, date: '2026-02-30' }],
       ['a badly written date', { ...good, date: '20/11/2026' }],
@@ -408,6 +409,11 @@ describe('loadRefuels', () => {
     ])('drops one with %s', (_, item) => {
       const kept = refuel(2, '2026-11-24')
       expect(loadRefuelsFrom([item, kept])).toEqual([kept])
+    })
+
+    it('keeps the largest safe id', () => {
+      const largest = refuel(Number.MAX_SAFE_INTEGER, '2026-11-24')
+      expect(loadRefuelsFrom([largest])).toEqual([largest])
     })
 
     it('keeps the first refuel of a repeated id', () => {

@@ -142,3 +142,18 @@ Tras cerrar la 005 se revisaron todas las specs, el código y los documentos. El
 - **README:** sección «Cómo se usa», que pide la visión en «Terminado significa». El enlace a la demo se añadirá cuando exista la URL de Vercel.
 - **`.gitattributes` con `eol=lf`:** en Windows, `core.autocrlf` dejaba algunos archivos con CRLF en la copia de trabajo y `prettier --check` fallaba. En el repositorio ya estaban en LF, así que su contenido no cambia.
 - **Favicon** (`public/favicon.svg`): una gota lima sobre el verde oscuro del mockup. Evita el 404 en cada carga.
+
+## 10. Segunda revisión del proyecto
+El 25/11/2026 se revisaron otra vez las specs, el código, la constitución, la CI y git. El autor autorizó arreglarlo todo sin esperar su confirmación de cada documento. Tareas: T8–T12.
+
+- **Visión:** describía el modo «A tope» con «litros y euros necesarios» e importe exacto, cuando desde la ampliación de la 001 todas las cifras son enteras. Ahora lo dice así.
+- **Decisiones:** D7 hablaba de dos pantallas y D9 de dos usos de `BottomSheet`; se añaden la pantalla «Historial» y las dos hojas de la 005. D5 anota que el `id` debe ser un entero seguro.
+- **Specs 004 y 005:** se recogen los textos secundarios que la interfaz toma del mockup (subtítulos, etiquetas y descripciones), el título «Tu historial» y el aviso de la bienvenida como título y texto, que es como se muestra y como lo comprueba el test.
+- **Plan 001:** la numeración saltaba de la sección 7 a la 9; ahora la ampliación es la sección 9 y se actualizan sus referencias. Se añade su estado.
+- **Regla repetida:** `SaveRefuelSheet` tenía su propio límite de 365 días; ahora usa `MAX_REFUEL_AGE_DAYS` de `validation.ts`.
+- **`id` de los repostajes:** un `id` guardado por encima de `Number.MAX_SAFE_INTEGER` hacía que el siguiente repostaje recibiera el mismo número, y al borrar uno se borraban los dos. Al cargar solo se aceptan enteros seguros (CA16 de la 003: un repostaje dañado se descarta).
+- **Orden de la calculadora (CA3 de la 004):** no tenía test; se añade.
+- **Formato en la CI:** `npm run format:check` (`prettier --check .`) se ejecuta en la CI, junto a lint, tests y build. `package.json` declara Node 24 o superior, como dice el README.
+- **README:** estructura completa, estado de 001–003 como «lógica» y el paso nuevo de la CI.
+- **Git:** `main` local estaba 27 commits por detrás de `origin/main`; se actualizó y se borraron las ramas locales `feat/*`, ya fusionadas. Las ramas remotas se dejan.
+- **Pendiente del autor:** importar el repositorio en Vercel (T1 de la 004) y revisar las «Decisiones tomadas sin consulta» de la spec de la 005. Hasta entonces, las specs 004 y 005 siguen como «implementadas» y no como «cerradas».

@@ -103,6 +103,35 @@ describe('App', () => {
       expect(screen.queryByRole('button', { name: /calcular/i })).toBeNull()
     })
 
+    it('shows the fields in order, with the result card last (CA3)', async () => {
+      const { user } = renderApp(storeWithCar())
+      const isInOrder = (...elements: HTMLElement[]) =>
+        elements.every(
+          (element, index) =>
+            index === 0 ||
+            (elements[index - 1].compareDocumentPosition(element) &
+              Node.DOCUMENT_POSITION_FOLLOWING) !==
+              0,
+        )
+      const common = () => [
+        input('Nivel actual (%)'),
+        screen.getByRole('button', { name: '25 %' }),
+        screen.getByRole('button', { name: '50 %' }),
+        screen.getByRole('button', { name: '75 %' }),
+        input('Precio por litro (€/l)'),
+        screen.getByRole('group', { name: 'Modo de cálculo' }),
+      ]
+      const card = () => screen.getByRole('region', { name: 'Resultado' })
+
+      expect(isInOrder(...common(), card())).toBe(true)
+      await user.click(screen.getByRole('button', { name: 'Hasta X %' }))
+      expect(isInOrder(...common(), input('% objetivo'), card())).toBe(true)
+      await user.click(screen.getByRole('button', { name: 'Tengo X €' }))
+      expect(isInOrder(...common(), input('Euros que tienes'), card())).toBe(
+        true,
+      )
+    })
+
     it('keeps every value when switching modes (CA5)', async () => {
       const { user } = renderApp(storeWithCar())
       await user.type(input('Nivel actual (%)'), '25')

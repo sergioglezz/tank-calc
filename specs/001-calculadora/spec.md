@@ -1,7 +1,7 @@
 # Feature 001: Calculadora (lógica)
 
-> **Estado:** cerrada. Ampliación aprobada y terminada el 24/11/2026; se cumplen los 18 criterios de aceptación (ver [plan.md](plan.md), sección 10.7).
-> La primera versión («Llenar a tope», cálculo) se cerró el 24/11/2026 (PR: sergioglezz/tank-calc#1). Esta versión la amplía con los modos «Hasta X %» y «Tengo X €» y pasa todos los resultados a números enteros. Cómo se implementa: [plan.md](plan.md), sección 10.
+> **Estado:** cerrada. Ampliación aprobada y terminada el 24/11/2026; se cumplen los 18 criterios de aceptación (ver [plan.md](plan.md), sección 9.7).
+> La primera versión («Llenar a tope», cálculo) se cerró el 24/11/2026 (PR: sergioglezz/tank-calc#1). Esta versión la amplía con los modos «Hasta X %» y «Tengo X €» y pasa todos los resultados a números enteros. Cómo se implementa: [plan.md](plan.md), sección 9.
 
 ## Resumen y objetivo
 Toda la lógica de cálculo de tank-calc, sin interfaz. A partir de los datos tal como los escribiría el usuario, la app sabe:

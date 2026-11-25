@@ -166,7 +166,8 @@ const isSavedCarName = (car: unknown): car is string | null =>
 function toRefuel(item: unknown): Refuel | null {
   if (!isRecord(item)) return null
   const { id, date, euros, price, liters, car } = item
-  if (typeof id !== 'number' || !Number.isInteger(id) || id < 1) return null
+  // Beyond the safe integers, the next id could repeat this one (D5).
+  if (typeof id !== 'number' || !Number.isSafeInteger(id) || id < 1) return null
   if (typeof date !== 'string' || !isValidIsoDate(date)) return null
   if (typeof euros !== 'number' || typeof price !== 'number') return null
   if (!validatePaidEuros(String(euros)).ok) return null

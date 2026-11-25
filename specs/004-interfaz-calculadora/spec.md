@@ -15,6 +15,8 @@ La interfaz no hace cálculos propios: las cifras, las reglas de validación, lo
 
 **Diseño de referencia:** las capturas de [docs/design/](../../docs/design/) (01–05 y 07–10) y el [prototipo de Figma](https://www.figma.com/proto/hAq16LKqkVc1jL0ss69W8K/Tank-calc?node-id=0-1). Son una guía y no hay que calcarlas al píxel. De ellas se toman el estilo (fondo claro, tarjeta de resultado en verde oscuro con cifras en verde lima, botón principal lima, tarjetas blancas redondeadas, tipografía sin serifa en negrita para los títulos), la estructura de cada pantalla y la navegación. Las capturas 06, 11 y 12 son de la feature 005.
 
+Los textos secundarios de las capturas que no cambian el comportamiento se toman del mockup: la cabecera «tank-calc» con la etiqueta «Reposta con cabeza»; en la bienvenida, «Antes de pasar por caja», «Calcula cuánto pedir en la gasolinera, sin hacer cuentas de cabeza.», «Empieza en tres pasos» y la descripción de cada paso; en «Elige tu coche», el subtítulo «La capacidad nos ayuda a hacer los cálculos.»; y en «Añadir mi coche», «Ponle un nombre y consulta los litros en el manual de tu coche.». Los textos de los criterios de aceptación mandan sobre el mockup.
+
 ## Historias de usuario
 - Como conductor en la gasolinera quiero ver **cuánto pedir en caja** nada más escribir el nivel y el precio, sin pulsar ningún botón.
 - Como conductor quiero **elegir mi coche** una vez y no tener que saber la capacidad de su depósito.
@@ -26,7 +28,7 @@ La interfaz no hace cálculos propios: las cifras, las reglas de validación, lo
 ## Criterios de aceptación
 
 ### Primera visita y coche seleccionado
-- CA1: Sin coche seleccionado (primera visita, coche propio borrado o coche guardado que ya no existe; CA15 y CA21 de la 002), la pantalla «Calculadora» muestra la bienvenida de la captura 07. Tiene una tarjeta «Solo paga lo que cabe.» con el botón «Elegir coche», los tres pasos («Elige tu coche», «Indica nivel y precio», «Mira cuánto pedir») y el aviso «Tu cálculo aparecerá aquí. Elige un coche para empezar.». No se muestran los campos ni los modos.
+- CA1: Sin coche seleccionado (primera visita, coche propio borrado o coche guardado que ya no existe; CA15 y CA21 de la 002), la pantalla «Calculadora» muestra la bienvenida de la captura 07. Tiene una tarjeta «Solo paga lo que cabe.» con el botón «Elegir coche», los tres pasos («Elige tu coche», «Indica nivel y precio», «Mira cuánto pedir») y el aviso «Tu cálculo aparecerá aquí», con el texto «Elige un coche para empezar.». No se muestran los campos ni los modos.
 - CA2: Con un coche seleccionado, la calculadora muestra arriba la tarjeta «Tu coche» con su nombre (CA4 de la 002) y su capacidad (p. ej. «Seat Ibiza · 40 l») y el botón «Cambiar», que abre «Elige tu coche».
 
 ### Calculadora
@@ -60,7 +62,7 @@ La interfaz no hace cálculos propios: las cifras, las reglas de validación, lo
 
 ### Teclado y entrada en el móvil
 - CA15: Los campos de números enteros (nivel actual, % objetivo, euros que tienes y capacidad) abren en el móvil el **teclado numérico sin separador decimal**, y el precio abre el **teclado numérico con separador decimal**.
-- CA16: Los campos enteros **solo admiten cifras**: cualquier otro carácter, escrito o pegado, se descarta al instante. Así, «1.000» en «Euros que tienes» se queda en «1000» y nunca se lee como 1 € (pendiente de la 001, plan, sección 10.7).
+- CA16: Los campos enteros **solo admiten cifras**: cualquier otro carácter, escrito o pegado, se descarta al instante. Así, «1.000» en «Euros que tienes» se queda en «1000» y nunca se lee como 1 € (pendiente de la 001, plan, sección 9.7).
 
 ### Recordar el precio
 - CA17: El precio se recuerda (CA17–CA18 de la 002) cada vez que el valor del campo es válido, sin esperar a salir de él; un precio no válido no sustituye al último recordado.

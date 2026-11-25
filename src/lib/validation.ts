@@ -100,7 +100,8 @@ export const validateMoney = (text: string): FieldResult =>
 export const validatePaidEuros = (text: string): FieldResult =>
   validateField(text, paidEurosRule)
 
-const MAX_REFUEL_AGE_DAYS = 365
+/** How many days before today a refuel can be dated (CA4 of spec 003). */
+export const MAX_REFUEL_AGE_DAYS = 365
 
 const invalidDate = (message: string): FieldResult<IsoDate> => ({
   ok: false,

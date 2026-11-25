@@ -2,7 +2,7 @@
 
 > **Estado:** redactadas el 25/11/2026 con autorización expresa del autor para implementarlas sin esperar aprobación (ver la spec).
 
-Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run lint`, `npm test` y `npm run build` en verde, marcarla `[x]` y hacer el commit.
+Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run lint`, `npm test` y `npm run build` en verde, marcarla `[x]` y hacer el commit (T1–T7 se hicieron con la autorización del autor descrita en la spec; las siguientes siguen la regla de AGENTS.md: proponer el commit y esperar su confirmación, salvo que el autor diga otra cosa).
 
 ## Base
 - [x] T1: Añadir `shiftDays` a `dates.ts` con sus tests. Hacer que `App` reciba `getToday` (por defecto `todayIso`) y que los tests le pasen un día fijo. (verificación: `npm test` | cubre: base de CA7 y CA15)
@@ -74,3 +74,12 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   - añadir al final del plan el repaso de los criterios y la revisión de la spec (comprobable, sin detalles técnicos, alcance y casos límite).
 
   (verificación: revisión de los documentos y `npm run lint`, `npm test` y `npm run build` en verde | cubre: CA24)
+
+## Segunda revisión del proyecto (plan, sección 10)
+Autorizadas por el autor el 25/11/2026 («arregla todo»), con los cambios de documentos y el commit incluidos.
+
+- [x] T8: Documentos: la visión con cifras enteras; D5, D7 y D9 al día; los textos secundarios del mockup en las specs 004 y 005; el aviso de la bienvenida en la spec 004 (CA1) tal como se muestra; la numeración y el estado del plan 001; y la regla del commit de estas tareas. (verificación: revisión de los documentos y enlaces internos | cubre: —)
+- [x] T9: Exportar `MAX_REFUEL_AGE_DAYS` desde `validation.ts` y usarlo en `SaveRefuelSheet.tsx` para el `min` del campo de fecha, en lugar de una constante repetida. (verificación: `npm test` | cubre: CA7)
+- [x] T10: Al cargar el historial, aceptar solo `id` enteros seguros (`Number.isSafeInteger`), con su test. (verificación: `npm test` | cubre: CA21; CA16 de la 003)
+- [x] T11: Test de componente del orden de la calculadora: nivel, botones rápidos, precio, selector de modo, campo del modo y tarjeta de resultado. (verificación: `npm test` | cubre: CA3 de la 004)
+- [x] T12: Comprobar el formato en la CI: script `format:check` (`prettier --check .`), paso en `ci.yml`, `engines` de Node 24 en `package.json`, y la constitución, `AGENTS.md` y el README al día (comandos, estructura y estado). (verificación: `npm ci`, `npm run lint`, `npm test`, `npm run build` y `npm run format:check` en verde | cubre: —)
