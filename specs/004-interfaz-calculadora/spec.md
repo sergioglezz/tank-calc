@@ -1,6 +1,6 @@
 # Feature 004: Interfaz de la calculadora y los coches
 
-> **Estado:** implementada el 25/11/2026; quedan CA15, CA35 y CA36–CA38, que dependen de publicar en Vercel y de probar en móviles reales (ver [plan.md](plan.md), sección 9).
+> **Estado:** implementada y publicada el 25/11/2026 en https://tank-calc-tau.vercel.app/; quedan CA15, CA35 y CA36 (probar en móviles reales y Lighthouse) y CA37 (comprobar la publicación automática tras un merge a `main`). Ver [plan.md](plan.md), sección 9.
 > Primera de las dos specs de interfaz. Esta cubre la calculadora, la elección de coche y la publicación; la **005** cubrirá el historial (guardar un repostaje, la pantalla «Historial», borrar repostajes) y cerrará el MVP.
 
 ## Resumen y objetivo

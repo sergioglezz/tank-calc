@@ -182,9 +182,9 @@ Repaso de los criterios de la spec contra el código, los tests (577 en verde; l
 | CA33 — teclado y foco | ✅ | `App.test.tsx`: foco al título al cambiar de pantalla y tras borrar. En el navegador: foco dentro de la hoja, en «Cancelar» al confirmar un borrado, Escape y vuelta al botón que la abrió |
 | CA34 — 44 × 44 px y modo activo | ✅ | Navegador: ningún botón ni campo visible mide menos de 44 px; `aria-pressed` en el selector |
 | CA35 — contraste AA y Lighthouse ≥ 90 | ✅ / ⏳ | Contraste calculado para cada pareja de colores: el mínimo es 4,97:1 (gris secundario sobre borde). ⏳ Lighthouse móvil en la URL pública |
-| CA36 — URL pública en Android e iOS | ⏳ | Depende de T1 (importar el repositorio en Vercel) |
-| CA37 — publicación automática desde `main` | ⏳ | Se comprueba con el merge de esta rama |
-| CA38 — enlace en el README | ⏳ | Se añade cuando exista la URL |
+| CA36 — URL pública en Android e iOS | ✅ / ⏳ | Publicada en https://tank-calc-tau.vercel.app/ el 25/11/2026: sirve el mismo build que `main` (mismos archivos con hash) y el flujo completo funciona a 360 px (elegir coche, calcular, guardar, historial y recargar con los datos recordados). ⏳ Probar en un Android y un iPhone reales |
+| CA37 — publicación automática desde `main` | ⏳ | Vercel publica desde `main`; se comprueba con el merge del cambio que añade el enlace al README |
+| CA38 — enlace en el README | ✅ | `README.md`: enlace al principio y en el estado del MVP |
 
 ### Cambios durante la implementación
 - **`ScreenTitle.tsx`:** componente pequeño, no previsto en el plan, para el `h1` de cada pantalla que recibe el foco al navegar (CA33).
@@ -199,5 +199,7 @@ Repaso de los criterios de la spec contra el código, los tests (577 en verde; l
 - La spec no ha cambiado.
 
 ### Pendiente
-- **T1 (autor):** importar el repositorio en Vercel. Después: añadir el enlace al README (CA38), Lighthouse móvil en la URL (CA35), probar los teclados y la app en un Android y un iPhone reales (CA15, CA36) y comprobar que el merge a `main` se publica solo (CA37).
+- ~~**T1 (autor):** importar el repositorio en Vercel.~~ Hecho el 25/11/2026 (https://tank-calc-tau.vercel.app/), con el enlace en el README (CA38).
+- **Autor:** Lighthouse móvil en la URL (CA35) y probar los teclados y la app en un Android y un iPhone reales (CA15, CA36).
+- **CA37:** comprobar que el merge a `main` del enlace del README se publica solo en menos de 10 minutos.
 - **Feature 005:** historial (guardar repostaje, pantalla «Historial», borrar repostajes y navegación inferior).
