@@ -1,6 +1,6 @@
 # Plan — Feature 005: Interfaz del historial
 
-> **Estado:** redactado el 25/11/2026 con autorización expresa del autor para seguir sin esperar la aprobación de cada fase (ver la spec). Tareas: [tasks.md](tasks.md).
+> **Estado:** redactado el 25/11/2026 con autorización expresa del autor para seguir sin esperar la aprobación de cada fase (ver la spec); aprobado y cerrado el 25/11/2026, cuando el autor aprobó las decisiones de la spec. Tareas: [tasks.md](tasks.md).
 
 Cómo se implementa la [spec](spec.md) respetando la [constitución](../00-constitution.md). Sigue la arquitectura de la [feature 004](../004-interfaz-calculadora/plan.md): estado en `App`, sin router y con la lógica en `src/lib/`.
 
@@ -122,7 +122,7 @@ Repaso de los criterios contra el código y los tests (613 en verde; lint y buil
   - **Cambio de día con la app abierta:** «hoy» se lee cada vez que se pinta la pantalla o se abre la hoja, así que el día nuevo se nota sin recargar.
   - Ninguno de los dos cambia el comportamiento descrito.
 - **Tamaño:** cabe en una feature de 7 tareas; no hace falta dividirla.
-- **Lo que debe revisar el autor:** las seis «Decisiones tomadas sin consulta» de la spec.
+- **Lo que debe revisar el autor:** las seis «Decisiones tomadas sin consulta» de la spec. Las aprobó todas el 25/11/2026.
 
 ### Cambios durante la implementación
 - **CA2 se amplió:** desde «Elige tu coche», «Calculadora» vuelve a la calculadora. Si no, el botón activo de la barra no hacía nada en esa pantalla y solo quedaba «Volver».
@@ -134,7 +134,7 @@ Repaso de los criterios contra el código y los tests (613 en verde; lint y buil
 
 ### Pendiente
 - **T1 de la 004 (autor):** importar el repositorio en Vercel y, después, el enlace en el README, Lighthouse móvil y la prueba en un Android y un iPhone reales.
-- **Revisión por el autor** de las decisiones tomadas sin consulta.
+- ~~**Revisión por el autor** de las decisiones tomadas sin consulta.~~ Hecha el 25/11/2026: el autor aprobó las seis y la feature se cerró.
 
 ## 9. Revisión del proyecto
 Tras cerrar la 005 se revisaron todas las specs, el código y los documentos. El autor aprobó estos cambios:
@@ -157,3 +157,4 @@ El 25/11/2026 se revisaron otra vez las specs, el código, la constitución, la 
 - **README:** estructura completa, estado de 001–003 como «lógica» y el paso nuevo de la CI.
 - **Git:** `main` local estaba 27 commits por detrás de `origin/main`; se actualizó y se borraron las ramas locales `feat/*`, ya fusionadas. Las ramas remotas se dejan.
 - **Pendiente del autor:** importar el repositorio en Vercel (T1 de la 004) y revisar las «Decisiones tomadas sin consulta» de la spec de la 005. Hasta entonces, las specs 004 y 005 siguen como «implementadas» y no como «cerradas».
+- **Actualización (25/11/2026):** el autor aprobó las seis decisiones y la 005 queda cerrada. Solo la 004 sigue «implementada», a la espera de Vercel.

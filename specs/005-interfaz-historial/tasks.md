@@ -1,6 +1,6 @@
 # Tareas — Feature 005: Interfaz del historial
 
-> **Estado:** redactadas el 25/11/2026 con autorización expresa del autor para implementarlas sin esperar aprobación (ver la spec).
+> **Estado:** redactadas el 25/11/2026 con autorización expresa del autor para implementarlas sin esperar aprobación (ver la spec). Todas hechas; feature cerrada el 25/11/2026.
 
 Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run lint`, `npm test` y `npm run build` en verde, marcarla `[x]` y hacer el commit (T1–T7 se hicieron con la autorización del autor descrita en la spec; las siguientes siguen la regla de AGENTS.md: proponer el commit y esperar su confirmación, salvo que el autor diga otra cosa).
 
