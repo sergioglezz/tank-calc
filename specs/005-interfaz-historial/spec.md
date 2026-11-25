@@ -1,6 +1,6 @@
 # Feature 005: Interfaz del historial
 
-> **Estado:** implementada el 25/11/2026; se cumplen los 24 criterios (ver [plan.md](plan.md), sección 8). La redactó el agente con autorización expresa del autor para escribir la spec, el plan y las tareas e implementarlas sin esperar la aprobación de cada fase (el autor no estaba disponible). Las decisiones que normalmente se habrían preguntado están en «Decisiones tomadas sin consulta», para que el autor las revise.
+> **Estado:** cerrada el 25/11/2026; se cumplen los 24 criterios (ver [plan.md](plan.md), sección 8). La redactó el agente con autorización expresa del autor para escribir la spec, el plan y las tareas e implementarlas sin esperar la aprobación de cada fase (el autor no estaba disponible). Las decisiones que normalmente se habrían preguntado están en «Decisiones tomadas sin consulta»; el autor las revisó y aprobó las seis el 25/11/2026. La publicación en Vercel es T1 de la 004 y queda fuera de esta feature.
 
 ## Resumen y objetivo
 Segunda y última spec de interfaz del MVP. Se apoya en la lógica de la [feature 003](../003-historial/spec.md) (historial) y en la interfaz de la [feature 004](../004-interfaz-calculadora/spec.md). El usuario puede:
@@ -116,7 +116,7 @@ La pantalla «Historial» lleva el título «Tu historial» (captura 06). Como e
 - Publicación en Vercel: es T1 de la 004 y la hace el autor.
 
 ## Decisiones tomadas sin consulta
-Se resolvieron con el mismo criterio que la 004 (seguir el mockup cuando no contradice las specs) y quedan para que el autor las revise:
+Se resolvieron con el mismo criterio que la 004 (seguir el mockup cuando no contradice las specs). El autor aprobó las seis el 25/11/2026:
 1. **Guardar desde la calculadora con hoja editable** (CA6–CA7), en lugar de guardar directamente con un toque. Así se cubre la historia «apuntar un repostaje de otro día» de la 003, que el mockup no tiene, sin pantalla nueva.
 2. **«Este mes» y «Gasto por día» en lugar del gráfico de 7 días**, como se decidió en la 004.
 3. **«Gasto por día» muestra todos los días con repostajes**, no solo los del mes, porque así lo define CA12 de la 003.
@@ -125,4 +125,4 @@ Se resolvieron con el mismo criterio que la 004 (seguir el mockup cuando no cont
 6. **La barra inferior está también en «Elige tu coche»**, como en la captura 04.
 
 ## Preguntas abiertas
-Ninguna que bloquee. Las decisiones de la sección anterior se pueden cambiar en una revisión.
+Ninguna.
