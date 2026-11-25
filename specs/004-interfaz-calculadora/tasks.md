@@ -5,7 +5,7 @@
 Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run lint`, `npm test` y `npm run build` en verde, marcarla `[x]` y proponer el commit. Los tests de componentes se van añadiendo a `src/App.test.tsx` en la tarea que crea cada comportamiento.
 
 ## Setup y publicación
-- [ ] T1: **(Autor)** Importar el repositorio en Vercel con la rama de producción `main`. Después, comprobar que la URL pública muestra la app actual (el título «tank-calc»). (verificación: abrir la URL en el móvil | cubre: base de CA36 y CA37)
+- [x] T1: **(Autor)** Importar el repositorio en Vercel con la rama de producción `main`. Después, comprobar que la URL pública muestra la app actual (el título «tank-calc»). (verificación: abrir la URL en el móvil | cubre: base de CA36 y CA37) **Hecho el 25/11/2026:** https://tank-calc-tau.vercel.app/, que sirve el mismo build que `main`.
 - [x] T2: Instalar `tailwindcss` y `@tailwindcss/vite`, añadir el plugin a `vite.config.ts` y crear `src/index.css` con `@import "tailwindcss"`, los colores del mockup en `@theme` y la fuente del sistema. Importarlo en `main.tsx`. (verificación: `npm run dev` muestra el título con el fondo y la fuente nuevos; `npm run build` en verde | cubre: base de CA30 y CA35)
 - [x] T3: Instalar `@testing-library/react`, `@testing-library/dom`, `@testing-library/user-event` y `jsdom`. Crear `src/test/setup.ts`, que limpia el DOM y añade la versión mínima de `<dialog>` solo si jsdom no la trae, y añadir `test.setupFiles` a `vite.config.ts`. Hacer que `App` reciba `storage` desde `main.tsx` y crear `src/App.test.tsx` con un primer test que monta la app con un almacenamiento falso. Los tests de `lib` siguen en Node. (verificación: `npm test` | cubre: base de los tests de componentes)
 
@@ -114,10 +114,10 @@ Basadas en el [plan](plan.md). Se hacen en orden. Al cerrar cada tarea: `npm run
   - contraste AA;
   - Lighthouse móvil ≥ 90 en accesibilidad.
 
-  Anotar los resultados. **Hecho en local** (360 px, foco y teclado, 44 px y contraste; ver el plan, sección 9). **Pendiente:** teclados en móviles reales y Lighthouse en la URL pública, tras T1. (verificación: lista de comprobaciones anotada en el plan | cubre: CA15, CA30, CA31, CA33–CA36)
+  Anotar los resultados. **Hecho en local** (360 px, foco y teclado, 44 px y contraste; ver el plan, sección 9). **Pendiente (autor):** teclados y app en un Android y un iPhone reales, y Lighthouse móvil en https://tank-calc-tau.vercel.app/. El flujo completo ya se probó en la URL pública a 360 px en el navegador. (verificación: lista de comprobaciones anotada en el plan | cubre: CA15, CA30, CA31, CA33–CA36)
 - [ ] T15: Cerrar la feature:
   - añadir D7–D11 a `docs/decisiones.md`;
   - actualizar `README.md` (estado de la 004, enlace a la app publicada, stack y quitar «Todavía no hay interfaz») y el estado de la spec;
   - añadir al final del plan el repaso de los criterios.
 
-  CA37 se comprueba tras el merge a `main`. **Hecho:** D7–D11, README, estado de la spec y repaso de criterios. **Pendiente:** el enlace a la app en el README, tras T1. (verificación: revisión de los documentos y `npm run lint`, `npm test` y `npm run build` en verde | cubre: CA37, CA38)
+  CA37 se comprueba tras el merge a `main`. **Hecho:** D7–D11, README, estado de la spec y repaso de criterios. **Hecho también:** el enlace a la app en el README. **Pendiente:** comprobar CA37 con el merge de ese cambio a `main`. (verificación: revisión de los documentos y `npm run lint`, `npm test` y `npm run build` en verde | cubre: CA37, CA38)

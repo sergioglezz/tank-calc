@@ -2,6 +2,8 @@
 
 Calculadora de repostaje para el móvil: te dice cuánto pedir en caja antes de llenar el depósito, sin pasarte.
 
+**Pruébala:** [tank-calc-tau.vercel.app](https://tank-calc-tau.vercel.app/)
+
 En muchas gasolineras hay que pagar **antes** de repostar. A partir de la capacidad del depósito, el nivel actual y el precio por litro, tank-calc te dice cuántos euros pedir en caja, cuántos litros entran y en qué nivel queda el depósito, en tres modos:
 - **A tope:** llenar el depósito.
 - **Hasta X %:** llegar a un nivel concreto.
@@ -19,10 +21,10 @@ Cada repostaje se puede guardar en un historial para saber cuánto gastaste la �
 | [001 — Calculadora (lógica)](specs/001-calculadora/spec.md) | Validación con mensajes en español y cálculo en euros, litros y porcentajes enteros de los tres modos: «A tope», «Hasta X %» y «Tengo X €» | ✅ Hecha (lógica) |
 | [002 — Coches (lógica)](specs/002-coches/spec.md) | Lista de 106 modelos con su capacidad, búsqueda sin tildes ni mayúsculas, hasta 10 coches propios y recordar en el dispositivo los coches, el coche seleccionado y el último precio | ✅ Hecha (lógica) |
 | [003 — Historial (lógica)](specs/003-historial/spec.md) | Guardar y borrar repostajes (fecha, euros, precio, litros y coche), lo que gastaste la última vez, el gasto por día y el total del mes, y recordar en el dispositivo hasta 500 repostajes | ✅ Hecha (lógica) |
-| [004 — Interfaz de la calculadora y los coches](specs/004-interfaz-calculadora/spec.md) | Calculadora con los tres modos y resultado al momento, errores al salir de cada campo, teclado numérico, elegir, añadir y borrar coches, y accesibilidad básica, mobile-first | ✅ Hecha · publicación en Vercel pendiente |
-| [005 — Interfaz del historial](specs/005-interfaz-historial/spec.md) | Guardar el repostaje desde la calculadora (con otro importe, precio o día), pantalla «Historial» con la última vez, el gasto del mes y por día y la lista de repostajes, borrar repostajes y barra de navegación inferior | ✅ Hecha · publicación en Vercel pendiente |
+| [004 — Interfaz de la calculadora y los coches](specs/004-interfaz-calculadora/spec.md) | Calculadora con los tres modos y resultado al momento, errores al salir de cada campo, teclado numérico, elegir, añadir y borrar coches, y accesibilidad básica, mobile-first | ✅ Hecha · falta probarla en móviles reales y Lighthouse |
+| [005 — Interfaz del historial](specs/005-interfaz-historial/spec.md) | Guardar el repostaje desde la calculadora (con otro importe, precio o día), pantalla «Historial» con la última vez, el gasto del mes y por día y la lista de repostajes, borrar repostajes y barra de navegación inferior | ✅ Hecha |
 
-**El MVP está completo:** puedes elegir o añadir tu coche, calcular en los tres modos, guardar el repostaje y verlo en el historial. Solo falta publicarlo en una URL pública de Vercel (paso manual del autor; ver la feature 004). La lógica está en `src/lib/` y cubierta por tests unitarios; la interfaz, por tests de componentes.
+**El MVP está completo:** puedes elegir o añadir tu coche, calcular en los tres modos, guardar el repostaje y verlo en el historial. Está publicado en [tank-calc-tau.vercel.app](https://tank-calc-tau.vercel.app/), que Vercel publica desde la rama `main`. La lógica está en `src/lib/` y cubierta por tests unitarios; la interfaz, por tests de componentes.
 
 **Ejemplo:** con un depósito de 50 l al 25 % y el precio a 1,579 €/l:
 
